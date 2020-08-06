@@ -267,7 +267,7 @@ could not find much on the data model.
 
 Weeks begin on Monday. The week number is the position of a week within a year:
 a week falls into a given calendar year if, and only if, the Thursday of that
-week falls in the year. Likeways, a week falls within a given month if, and only
+week falls in the year. Likewise, a week falls within a given month if, and only
 if, the Thursday of the week falls in the month. Years have either 52 or 53
 weeks. 
 
