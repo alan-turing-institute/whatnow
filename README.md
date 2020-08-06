@@ -25,14 +25,21 @@ specified projects (usually those for which the current user is
 ### Typical questions
 
 1. What projects am I supposed to be working on?
+
 2. For projects of interest, 
    - are timesheets up to date?
    - are we on track?
    - where are we?
-3. Projects of interest are:
+
+- Projects of interest are:
    - projects where I am listed as project lead on GitHub
    - projects I'm working on
    - projects my reports are working on
+
+3. Are all allocations to projects with issue numbers?
+
+4. Has a person spent more than 6 months on a project? 
+
 
 ## Design notes
 

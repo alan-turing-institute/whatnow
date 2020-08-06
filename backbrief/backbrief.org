@@ -1,0 +1,289 @@
+#+title: Project scheduling for REG
+
+This document proposes a new system to help REG manage project scheduling, staff
+assignments, time recording, and billing.
+
+* History
+
+** Early days
+
+In the beginning, REG had so few people that no formal process was
+required. However, once we had grown beyond a few people we needed some way to
+keep track of who was doing what project and plan for upcoming projects. We
+repurposed a moveable whiteboard, and divided the board with tape into a
+planning grid: months across the columns and projects down the rows. We wrote
+the names of the staff members assigned to a project in the cells corresponding
+to particular months.
+
+This simple board served us well for a while but at some point became
+unwieldy. It was too easy inadvertently to assign someone to more projects than
+they had time to do. It was also easy to miss out someone completely.
+
+Our next approach retained the whiteboard planning grid but replaced written
+assignments with pieces of paper held on to the board with magnets. Each piece
+of paper identified 0.5 person-months of effort, and was labelled with a month
+and a person. We made two pieces of paper for a given month and individual,
+corresponding to one person-month. An example of the board decorated with
+projects and assingments is shown in figure 1. 
+
+#+caption: “The board”, version 2 (early 2018).
+#+attr_latex: :width 3in
+[[./the-board.jpg]]
+
+This approach worked very well. It was not possible to over-assign people (since
+there were only two pieces of paper for any given month) and by looking at the
+pile of paper remaining one could see how many people were available. Empty
+cells indicated projects that required staffing. Perhaps surprisingly, the
+“analogue” nature of the board was also an advantage. It turned out to be
+unexpectedly useful to be able to stand around the board discussing upcoming
+projects. Everything was immediately visible and comprehensible. People could
+move "their" pieces of paper around to make improvements in the assignments. Not
+only that, but it was a very effective way to introduce visitors to the team's
+work.
+
+However, the team continued to grow. At the point where we were using three
+whiteboards---including the reverse sides---we decided to move to an electronic
+system. The present system is built around a commercial, SaaS system called
+"Harvest Forecast".[fn:1]
+
+** The present
+
+The present system has three parts:
+
+1. For overall /project management/ we use GitHub. Every project gets a GitHub
+   “issue,” which comes with an auto-generated issue number. The issue number is
+   the primary means of individuating projects within REG. 
+
+   Each of the issues has a place within a kanban board (which GitHub calls a
+   “project”) to track the present stage of each project. We currently have ten
+   stages (see table below).
+
+   Within the issue itself we maintain metadata about the projects---the people
+   involved, the total budget and timing constraints---as well as a
+   chronological record of communications about the project. We also use the
+   issue as a place to attach team members’ preferences. None of this metadata
+   is easily parsed by machine.
+
+2. For /scheduling/ and /billing/ we use Forecast. Roughly speaking, this
+   web-based service maintains a list of /assigments/; that is, allocations of
+   an individual's time to a project over a given period. Since Forecast records
+   what we ought to be spending our time on, we also use it for billing. When we
+   come to to decide how much to charge projects, we look at the past
+   allocations in Forecast. 
+
+   We have also used Forecast to try to schedule projects as well as individual
+   assignments. However, this is complicated by the fact that there is no
+   "project budget" facility in Forecast. A project that is not staffed doesn't
+   have any information about start and end dates or resourcing needs.
+   We have found a work-around by assigning a nominal staff member called
+   “Resource required”. When a real team-member is assigned to the project, the
+   “resource required” person is removed. 
+
+3. For historic /time tracking/ we use Harvest, a system linked to Forecast. We
+   have tried to use Harvest to track our /actual/ time, including various
+   duties that are not billed to projects because they are part of "business as
+   usual."  Every once in a while we review Harvest to ensure that what we said
+   we were going to do (in Forecast) is roughly what we actually did. If there
+   are large discrepancies, we discuss these and if necessary change Forecast
+   retroactively to match reality.
+
+#+caption: The ten stages of a project (as at present).
+#+begin_table
+| Stage | Name                   | Description                                   |
+|-------+------------------------+-----------------------------------------------|
+|     1 | Suggested              | Someone heard a rumour                        |
+|     2 | Proposal               | Someone is writing a proposal                 |
+|     3 | Project brief complete | We have received a project brief to consider  |
+|     4 | With funder            | Appoved by REG; awaiting funding confirmation |
+|     5 | Finding resources      | REG is finding individuals to assign          |
+|     6 | Awaiting start         | Project is ready to go                        |
+|     7 | Active                 |                                               |
+|     8 | Completion review      | We don't do this as much as we should         |
+|     9 | Done                   |                                               |
+|    10 | Cancelled              |                                               |
+#+end_table
+
+In addition, we have written a number of scripts (under the collective term
+"project Wimbledon"). These (a) summarise staffing allocations by project and
+person, to some extent reproducing the board in a way that allows us to print it
+out on a very large sheet of paper; (b) collect in one place the individual
+preferences; (c) produce a forward look of supply against demand.
+
+We have, perhaps, now reached the limits of the present system. There are three
+main problems with the current approach:
+
+1. The projects in GitHub, Forecast, and Harvest are connected only though the
+   issue number and all the connections are manual. In particular, Forecast has
+   no access to the project metadata from the GitHub issue and (perhaps more
+   surprisingly) it does not make use of the budgeting data from Harvest
+   either. For example, in order to indicate, on Forecast, that a project exists
+   before someone is assigned to it, it is necessary to add a “placeholder”
+   allocation (linked to a fictitious individual).
+
+2. There's no automated way to summarise project status beyond
+   Wimbledon. Project leads must manually check to see that their projects are
+   on budget, for example. We provide a regular summary to Finance but this is a
+   manual process. We don't have confidence that everything is on track.
+
+3. The process of actually scheduling individuals onto projects is /extremely/
+   time-consuming. Furthermore, there is no history of changes: when an
+   assignment is changed in Forecast, there is no record of what was there
+   before or why the change was made.
+
+
+** Desiderata for a future system
+
+- Timely “warnings” and alerts. For example, before projects are due to start or
+  end, when resourcing is not on track.
+
+- Periodic summaries
+
+- Who's doing what
+
+- What am I supposed to be doing next?
+
+
+* The plan for a new system
+
+** Overview
+
+It is probably best to make changes incrementally. The following is a
+three-phase plan.
+
+- Phase 1 :: Extend Wimbledon with reports, especially ones that verify the
+             consistency of the current schedule and that warn of upcoming
+             problems.
+
+- Phase 2 :: Create a new system to manage the information about projects,
+             including the history of changes to scheduling.
+
+- Phase 3 :: Automate scheduling of projects.
+
+** Further details
+
+*** Phase I
+
+**** Changes to GitHub
+
+ 1. Change the format of the first tag of the issue to include a YAML data block
+    so that the important project data become machine-readable.
+
+**** Modules
+
+ 1. Interface to the GitHub issue API
+ 2. Interface to the Forecast API
+ 3. Interface to the Harvest API
+
+*** Data model
+
+The following are entities in the model: /person/, /project/, and
+/assignment/. Persons represent members of staff; and projects are the things to
+which they might be assigned.
+
+Forecast is authoritative for persons (the "Team," in Forecast's
+language). GitHub is authoritative for projects: A project is any issue on the
+[[https://github.com/alan-turing-institute/Hut23/projects/2][Project Tracker]] or [[https://github.com/alan-turing-institute/Hut23/projects/8][Standing Roles]] tracker. However, some data about persons may
+exist on GitHub (for example, the identity of the project lead); and projects
+are of course used on Forecast to manage individual assignments.
+
+All projects on Forecast have their GitHub issue number recorded as the Forecast
+"Project Code" and this is how we identify projects across those two
+systems. Conversely, all persons on Forecast have an email address which we use
+to identify them (as people!); however, since people don't have to use the same
+email on GitHub as they do on Forecast, we will need a separate lookup table of
+GitHub usernames as part of any new system.
+
+We now wish to define “assignments” of persons to projects. (In some sense, the
+entire point of Forecast is to manage these assignments.) What does this mean?
+In Forecast, a person can only be assigned once to the same project on the same
+day. We might therefore model this as follows. By an /allocation/ we mean a
+triple of a project, a person, and a date. Then, the /schedule/ is (1) a set of
+allocations; and (2) a map from this set to the non-negative numbers. (The
+non-negative number is the amout of time allocated to the project by the person
+on the given date). Note that under this definition there is only one schedule
+(though one could of course consider the restriction of the map to the subset of
+allocation specific to a particular project). We consider a /set/ of allocations
+in the first part of the definition of a schedule to ensure that no person has
+two allocations to the same project on the same day.
+
+In fact, this is not how Forecast represents things. In practice, people tend to
+remain with a project for an extended duration rather than switch every day. So
+for space reasons Forecast stores blocks of allocations. 
+
+A /period/ is a contiguous range of dates.[fn:2] (We deal in no unit of time
+smaller than a day. Ideally, we would not use any unit of time more granular
+than an ISO 8601 week, but Forecast does not enforce this.)
+
+An /assignment/ is a tuple consisting of a person, a project, a rate (see
+below), and a period. The interpretation is, “this person is allocated to this
+project for a certain fraction of their available time over this period.” A
+/schedule/ is then a set of assignments /subject to the constraint that/ no two
+assignments, having the same person and project, may overlap on any date.[fn:3] 
+
+Forecast is authoritative for assignments. 
+
+The assignment rate is specified in hours per day (although actually I think it
+might be stored in seconds) and must be positive and non-zero. For assingment
+purposes, we use a nominal 8-hour day (or 40-hour week) so we sometimes
+equivalently quote the rate as a percentage (of the nominal day); and
+occasionally as a time in hours per week.
+
+Some Forecast Team-members are not actually “available” (for example, because
+they have left the team) and some people are on reduced-hours contracts
+(typically 80%). We do not store a person’s total “availability” anywhere: it is
+always assumed to be 40 hours per week. Instead, we assign such a person wholly
+or partially to the nominal project “UNAVAILABLE” and this time contributes to
+their total assigned time.
+
+
+
+
+
+** Some ideas for reporting 
+
+ - you (or someone on your team) is not allocated 100%;
+ - your project (if you are the project lead) is not staffed 100%;
+ - there is a discrepancy between what Forecast says someone should be doing and
+   what they say they're doing on Harvest;
+ - the project is not on track against budget;
+ - your project is missing metadata;
+ - the same, for projects in your Programme;
+ - it is now six months before the start of the project and we do not have
+   confirmation of funding.
+
+
+* Other systems
+
+** RSEAdmin: The one from Sheffield
+
+The Sheffield RSE team have also written their own planning tool: [[https://rseadmin.readthedocs.io/en/latest/][RSE admin
+tool]]. It is for, “[...] tracking grant applications, managing RSE
+commitment and reporting on staff expenses and cost recovery.” It is written
+in Python as a web app; there is usage and installation documentation, but I
+could not find much on the data model. 
+
+
+* Dates
+
+Weeks begin on Monday. The week number is the position of a week within a year:
+a week falls into a given calendar year if, and only if, the Thursday of that
+week falls in the year. Likeways, a week falls within a given month if, and only
+if, the Thursday of the week falls in the month. Years have either 52 or 53
+weeks. 
+
+* Footnotes
+
+[fn:1] https://www.getharvest.com/forecast. I think the company initially built
+a timesheet system called “Harvest” (which we also use) and then extended it
+with a planning system.
+
+[fn:2] [[https://www.joda.org/joda-time/key.html][Joda]] is a well-thought-through Java library for managing dates and
+times. It was the basis Hadley Wickham's [[https://lubridate.tidyverse.org/][lubridate]] package for R. These packages
+carefully define various concepts relating to time: the one that corresponds to
+our use of "period" is what they call an "interval". They reserve "period" for
+a length of time that is not "tied down" to a particular starting instant.  
+
+[fn:3] In practice, there seems to be bug in the Forecast front end where,
+occasionally, entering an assignment will produce an error message indicating
+that the entered assignment overlaps with an existing one (which is forbidden by
+the constraint) but where there is no such overlap.
