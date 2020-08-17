@@ -8,8 +8,8 @@ representing a member of the REG team, typically also having an account on the
 system and an email address; @emph{project}, something to which we assign
 people; and @emph{assignment}, a contiguous range of days for which a person is
 assigned to a project. With very few exceptions a project is individuated by a
-GitHub issue id; the exceptions are ``global projects,'' used for managing
-availability.
+GitHub issue id. The exceptions are certain `global' projects, which we use to
+manage availability.
 
 As of the time of writing, Forecast does not have an official API. However,
 there is an undocumented REST endpoint and there are libraries written against
@@ -46,49 +46,136 @@ A GET request to a resource produces a JSON object. Here we document only the
 following resources:
 
 @tabular[#:sep @hspace[1]
-  (list
+   (list
     (list @tt{https://api.forecastapp.com/projects} "Projects")
-    (list @tt{https://api.forecastapp.com/people} "Persons")
+    (list @tt{https://api.forecastapp.com/people}   "Persons")
     (list @tt{https://api.forecastapp.com/schedule} "Assignments"))]
-  
+
+All of this documentation was produced by making the GET request and inspecting
+the output; the actual API, being undocumented, could of course change at any
+time.
+
+@subsection{Projects}
+
+A GET request to the @tt{projects} resource returns a dictionary with the single
+key, @tt{projects}. The value associated with this key is an array of
+@emph{project}. A @emph{project} is a dictionary with the following fields:
+
+@tabular[#:sep @hspace[1] #:row-properties '(bottom-border ())
+                          #:column-properties '(() () right)
+  (list
+    (list "Key"              "JSON type of value" "Example")
+    (list @tt{id}            @elem{@italic{numeric} (integer)} "1824209")
+    (list @tt{harvest_id}    @elem{@italic{numeric} (integer)} "19058649")
+    (list @tt{client_id}     @elem{@italic{numeric} (integer)} "781285")
+    (list @tt{name}          @italic{string}          "Nocell - Phase 1")
+    (list @tt{code}          @italic{string}          "hut23-266")
+    (list @tt{start_date}    @italic{string}          "2018-11-01")
+    (list @tt{end_date}      @italic{string}          "2019-05-31")
+    (list @tt{tags}          @elem{@italic{array} of @italic{string}} "GitHub:266, R-SPET-103")
+    (list @tt{color}         @italic{string}          "orange")
+    (list @tt{notes}         @italic{string}          @tt{null})
+    (list @tt{archived}      @italic{boolean}         @tt{false})
+    (list @tt{updated_at}    @elem{@italic{string} (timestamp)} "")
+    (list @tt{updated_by_id} @elem{@italic{numeric} (integer)} ""))]
+
+Most of these fields are self-explanatory (or anyway we have guessed
+them). Harvest has its own database of projects---even though they are the same
+users---and @tt{harvest_id} connects the project on Forecast with the same
+project on Harvest. The @tt{client_id} refers to the @emph{client}, a grouping
+of projects (which we use to identify the Programme). We use the @tt{code} to
+store the GitHub issue number: all projects must have an issue number although
+of course this is not enforced by Forecast. The @tt{tags} are a list of
+user-assigned tags, which we use in particular to store the `Finance project
+code' when we know it. (It is identified only by being of this particular form
+as other tags may be present in the list.) We occasionally use the @tt{notes}
+field to store a link to the issue on GitHub. 
+
 
 @subsection{Persons}
 
-A GET request to the @tt{people} resource returns a dictionary with the
-single key @verbatim{people}, whose value is an array of @tt{person}. A
-@tt{person} is a dictionary with the following fields:
+A GET request to the @tt{people} resource returns a dictionary with the single
+key, @tt{people}. The value associated with this key is an array of
+@tt{person}. A @tt{person} is a dictionary with the following fields:
 
 @tabular[#:sep @hspace[1] #:row-properties '(bottom-border ())
+                          #:column-properties '(() () right)
   (list
-    (list "Key" "JSON type of value" "Example")
-    (list @tt{id}          "Numeric (integer)" "")
-    (list @tt{harvest_user_id} "Numeric (integer)" "")
-    (list @tt{first_name}  "String" "James")
-    (list @tt{last_name}   "String" "Geddes")
-    (list @tt{email}       "String" @tt|{jgeddes@turing.ac.uk}|)
-    (list @tt{avatar_url}  "String"  "")
-    (list @tt{login}       "String" "enabled")
-    (list @tt{admin}       "Boolean" "")
-    (list @tt{archived}    "Boolean" "")
-    (list @tt{color_blind} "Boolean" "")
-    (list @tt{roles}       "Array of String" "")
-    (list @tt{weekly_capacity} "Numeric (integer)" "144000")          
-    (list @tt{working_days} "Dictionary of Boolean" "")
-    (list @tt{personal_feed_token_id} "?" @tt{null})
-    (list @tt{subscribed}  "Boolean" "")
-    (list @tt{updated_at}  "String (timestamp)" "2020-04-08T13:46:01.840Z")
-    (list @tt{updated_by_id} "Numeric (integer)" "")
-)]
+    (list "Key"                "JSON type of value"   "Example")
+    (list @tt{id}              @elem{@italic{numeric} (integer)} "")
+    (list @tt{harvest_user_id} @elem{@italic{numeric} (integer)} "")
+    (list @tt{first_name}      @italic{string}        "James")
+    (list @tt{last_name}       @italic{string}        "Geddes")
+    (list @tt{email}           @italic{string}        "jgeddes@turing.ac.uk")
+    (list @tt{avatar_url}      @italic{string}        "")
+    (list @tt{login}           @italic{string}        "enabled")
+    (list @tt{admin}           @italic{boolean}       "")
+    (list @tt{archived}        @italic{boolean}       "")
+    (list @tt{color_blind}     @italic{boolean}       "")
+    (list @tt{roles}           @elem{@italic{array} of @italic{string}} "")
+    (list @tt{weekly_capacity} @elem{@italic{numeric} (integer)} "144000")          
+    (list @tt{working_days}    @elem{@italic{dict} of @italic{boolean}} "")
+    (list @tt{personal_feed_token_id} "?"             @tt{null})
+    (list @tt{subscribed}      @italic{boolean}       "")
+    (list @tt{updated_at}      @elem{@italic{string} (timestamp)} "2020-04-08T13:46:01.840Z")
+    (list @tt{updated_by_id}   @elem{@italic{numeric} (integer)} ""))]
 
-Most of these fields are self-explanatory (or anyway we have guessed
-them). Harvest has its own database of users---even though they are the same
-users---and @tt{harvest_user_id} connects the user on Forecast with their
-dopplegänger on Harvest. The elements of the array in @tt{roles} are
-user-defined strings (such as ``REG Permanent'') that are listed in the resource
-@tt{roles} (although, oddly, they are given here as their descriptions, rather
-than their ids in that resource). The weekly availabilty @tt{weekly_capacity} is
-given in seconds. The keys of the dictionary @tt{working_days} are "monday",
-"tuesday", and so on, and the values are boolean. 
+The following fields may not be obvious. Harvest has its own database of
+users---even though they are the same users---and @tt{harvest_user_id} connects
+the user on Forecast with their dopplegänger on Harvest. The elements of the
+array in @tt{roles} are user-defined strings (such as ``REG Permanent'') that
+are listed in the resource @tt{roles} (although, oddly, they are given here as
+their descriptions, rather than their ids in that resource). The weekly
+availabilty @tt{weekly_capacity} is given in seconds. The keys of the dictionary
+@tt{working_days} are "monday", "tuesday", and so on, and the values are
+boolean.
 
 The meanings of @tt{login}, @tt{personal_feed_token_id}, and
 @tt{subscribed} are unknown.
+
+
+@subsection{Assignments}
+
+A GET request to the @tt{assignments} resource returns a dictionary with the
+single key, @tt{assignments}. The value associated with this key is an array of
+@emph{assignment}. An @emph{assignment} is a dictionary with the following
+fields:
+
+@tabular[#:sep @hspace[1] #:row-properties '(bottom-border ())
+                          #:column-properties '(() () right)
+  (list
+    (list "Key"              "JSON type of value" "Example")
+    (list @tt{id}             @elem{@italic{numeric} (integer)} "19858217")
+    (list @tt{project_id}     @elem{@italic{numeric} (integer)} "1824209")
+    (list @tt{person_id}      @elem{@italic{numeric} (integer)} "399979")
+    (list @tt{placeholder_id} @elem{@italic{numeric} (integer)} @tt{null})
+    (list @tt{start_date}     @italic{string}                   "2019-01-01")
+    (list @tt{end_date}       @italic{string}                   "2019-05-31")
+    (list @tt{allocation}     @elem{@italic{numeric} (integer)} "14400")
+    (list @tt{notes}          @italic{string}                   "Assuming allocation approved.")
+    (list @tt{repeated_assignment_set_id} @elem{@italic{numeric} (integer)} @tt{null})
+    (list @tt{active_on_days_off} @italic{boolean}               @tt{false})
+    (list @tt{updated_at}     @elem{@italic{string} (timestamp)} "2019-03-12T16:28:59.727Z")
+    (list @tt{updated_by_id}  @elem{@italic{numeric} (integer)} "408182"))]
+    
+
+@tt{project_id} and @tt{person_id} identify the @emph{project} and @emph{person}
+respectively. A @tt{placholder_id} identifies a @emph{placeholder}, which is a
+Forecast entity that serves to allocate time with allocating an individual. We
+use placeholders to reserve time for partners (where we don't know the
+particular individual) or to indicate that some resource is required at a
+certain time.
+
+The @tt{allocation} is the time, in seconds per day, allocated to this project
+each working day of the assignment. Since we use a nominal eight-hour day, an
+@tt{allocation} of 14,400 indicates a 50% allocation.
+
+Forecast allows one to create an assignment that is for specific days of the
+week, repeated for a certain number of weeks. The
+@tt{repeated_assignment_set_id} is (presumably) a link to a separate record that
+indicates which days of the week and for how long. We do not use this feature.
+
+Finally, @tt{active_on_days_off} is a flag to indicate whether this assignment
+includes, for example, weekends. We do not use this feature, either.
+
+
