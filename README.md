@@ -17,7 +17,8 @@ REG uses three systems for project management.
 3. An add-on to Harvest, called Forecast, which we use for scheduling.
 
 Whatnow collects data from all three and reports summary information for
-specified projects (usually those for which the current user is
+specified projects (usually those for which the current user is part of the
+project, project lead, or Programme lead).
 
 
 ## Usage (vapourware)
