@@ -9,7 +9,8 @@ system and an email address; @emph{project}, something to which we assign
 people; and @emph{assignment}, a contiguous range of days for which a person is
 assigned to a project. With very few exceptions a project is individuated by a
 GitHub issue id. The exceptions are certain `global' projects, which we use to
-manage availability.
+manage availability. It is sometimes useful to know the @emph{Client}, which we
+use in practice to record the Programme.
 
 As of the time of writing, Forecast does not have an official API. However,
 there is an undocumented REST endpoint and there are libraries written against
@@ -47,9 +48,11 @@ following resources:
 
 @tabular[#:sep @hspace[1]
    (list
-    (list @tt{https://api.forecastapp.com/projects} "Projects")
-    (list @tt{https://api.forecastapp.com/people}   "Persons")
-    (list @tt{https://api.forecastapp.com/schedule} "Assignments"))]
+    (list "Project"  @tt{https://api.forecastapp.com/projects})
+    (list "Persons"  @tt{https://api.forecastapp.com/people})
+    (list "NPCs"     @tt{https://api.forecastapp.com/placeholders})
+    (list "Schedule" @tt{https://api.forecastapp.com/assignments})
+    (list "Clients"  @tt{https://api.forecasptapp.com/clients}))]
 
 All of this documentation was produced by making the GET request and inspecting
 the output; the actual API, being undocumented, could of course change at any
@@ -178,4 +181,21 @@ indicates which days of the week and for how long. We do not use this feature.
 Finally, @tt{active_on_days_off} is a flag to indicate whether this assignment
 includes, for example, weekends. We do not use this feature, either.
 
+
+@subsection{Clients}
+
+A GET request to the @tt{clients} resource returns a dictionary with the single
+key, @tt{clients}. The value associated with this key is an array of
+@emph{client}. A @emph{client} is a dictionary with the following fields:
+
+@tabular[#:sep @hspace[1] #:row-properties '(bottom-border ())
+                          #:column-properties '(() () right)
+  (list
+    (list "Key"              "JSON type of value" "Example")
+    (list @tt{id}            @elem{@italic{numeric} (integer)} "769467")
+    (list @tt{name}          @italic{string}          "Health")      
+    (list @tt{harvest_id}    @elem{@italic{numeric} (integer)} "7394382")
+    (list @tt{archived}      @italic{boolean}         @tt{false})
+    (list @tt{updated_at}    @elem{@italic{string} (timestamp)} "")
+    (list @tt{updated_by_id} @elem{@italic{numeric} (integer)} "399979"))]
 

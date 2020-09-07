@@ -3,40 +3,35 @@
 ;; Interface to the Forecast RESTful API
 ;; https://help.getharvest.com/forecast/faqs/faq-list/api/
 ;;
-;; Forecast does not have a public API, so this interface is based on a combination
-;; of guesswork and studying the examples given at the link and also here
-;; https://github.com/vafliik/pyforecast
+;; Forecast does not have a public API. This interface is based on a combination
+;; of guesswork and studying the examples given at the link above.
+;; Further ideas were taken from Python bindings at https://github.com/vafliik/pyforecast
 
 (require racket/contract
          )
 
-;; provides
-
-;; ---------------------------------------------------------------------------------------------------
-;; TODO
-;; - much of this code is repeated, but must be present at compile-time. Fix this with macros.
-;; - email fields should be of type "email"
-;; - url fields should be of type "url"
+(provide
+ (struct-out project)
+ (struct-out person)
+ (struct-out assignment)
+ (struct-out client))
 
 
 
-;; ---------------------------------------------------------------------------------------------------
+
+
 ;; Utilities
 
 ;; possibly/c : Return a contract that is like C but also accepts null
 (define (possibly/c C)
   (or/c 'null C))
 
-;; ---------------------------------------------------------------------------------------------------
+;; id/c : A contract for the JSON value used to identify other records
+(define id/c exact-nonnegative-integer?)
+
 ;; Types
 
-;; This module defines the following types, reflecting values returned from the API:
-;; - project        https://api.forecastapp.com/projects
-;; - person         https://api.forecastapp.com/people
-;; - assignment     https://api.forecastapp.com/assignments
-;; - client         https://api.forecastapp.com/clients
-
-;; The following types are not yet implemented or used
+;; Not implemented:
 ;; - milestone
 ;; - placeholder
 ;; - role
@@ -123,43 +118,45 @@
 
 (struct assignment
   (id
+   project_id
+   person_id
+   placeholder_id
    start_date
    end_date
    allocation
    notes
-   updated_at
-   updated_by_id
-   project_id
-   placeholder_id
    repeated_assignment_set_id
    active_on_days_off
+   updated_at
+   updated_by_id
    ))
 
 (define assignment/c
-  (struct assignment
-    exact-nonnegative-integer? ; id
+  (struct/c assignment
+    id/c                        ; id
+    id/c                        ; project_id
+    (possibly/c id/c) ; person_id
+    (possibly/c id/c) ; placeholder_id
     date? ; start_date
     date? ; end_date
-    ; allocation
-    ; notes
-    ; updated_at
-    ; updated_by_id
-    ; project_id
-    ; placeholder_id
-    ; repeated_assignment_set_id
-    ; active_on_days_off
-    ))
+    exact-nonnegative-integer? ; allocation
+    (possibly/c  string?) ; notes
+    (possibly/c id/c) ; repeated_assignment_set_id
+    boolean? ; active_on_days_off
+    string? ; updated_at
+    exact-nonnegative-integer? ; updated_by_id
+      ))
 
 ;; jsexpr->assignment jsexpr? -> assignment?
 (define (jsexpr->assignment js)
   #f)
 
-(struct client
-  ())
+;; (struct client
+;;   ())
 
-(define client/c
-  (struct client
-    ))
+;; (define client/c
+;;   (struct client
+;;     ))
 
 ;; jsexpr->client jsexpr? -> client?
 (define (jsexpr->client js)
