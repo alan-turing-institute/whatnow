@@ -1,16 +1,61 @@
-#lang scribble/base
+#lang scribble/manual
 
-@title{A guide to the Forecast API}
+@require[
+  @for-label["../api/forecast.rkt"]]
+
+@title{Interface to the SaaS systems}
+
+@section{Forecast}
+@defmodule[whatnow/api/forecast]{The @racketmodname[whatnow/api/forecast] library
+provides procedures for accessing the data stored on Forecast.}
 
 @hyperlink["https://forecastapp.com"]{Forecast} is our SaaS system for recording
-project assignments. It contains three primary kinds of entity: @emph{person},
-representing a member of the REG team, typically also having an account on the
-system and an email address; @emph{project}, something to which we assign
-people; and @emph{assignment}, a contiguous range of days for which a person is
-assigned to a project. With very few exceptions a project is individuated by a
-GitHub issue id. The exceptions are certain `global' projects, which we use to
-manage availability. It is sometimes useful to know the @emph{Client}, which we
-use in practice to record the Programme.
+current and future project assignments. We typically ``bill'' projects based on
+the allocations in Forecast. Forecast manages five primary kinds of entity
+(along with some others that are not exposed by this interface):
+
+@itemlist[#:style 'ordered
+
+  @item{@deftech{person}
+
+        A person represents an individual who is able to be assigned to
+        projects. Such an individual will have an account on Forecast and an
+        email address.}
+
+  @item{@deftech{placeholder}
+
+        A placeholder is an entity that is treated like a @tech{person} for the
+        purpose of assignments to @tech{projects} but which does not represent
+        an individual in the real world. We use placeholders to hold project
+        @tech{assignments} where we have not yet decided on the individual to be
+        assigned; as well as @tech{assignments} representing a number of
+        possible individuals, such as those from a particular partner, where,
+        again, we are not sure who it will be.
+
+        Forecast provides placeholders in addition to persons because it bills
+        us based on the number of persons. However, it also restricts the number
+        of @tech{placeholders} to be a fraction of the number of @tech{persons},
+        as well as the total assignments to a specific placeholder.}
+
+  @item{@deftech{project}
+
+        A project corresponding to a unique GitHub issue on the Project Tracker.}
+
+  @item{@deftech{client}
+
+        A single level grouping of @tech{projects}. We use clients mainly to
+        correspond to Turing Programmes.}
+
+  @item{@deftech{assignment}
+
+        A contiguous range of days for which a @tech{person} is assigned to a
+        @tech{project}.}
+
+]
+
+With very few exceptions a project is individuated by a GitHub issue number. The
+exceptions are certain `global' projects, which we use to manage
+availability. 
 
 As of the time of writing, Forecast does not have an official API. However,
 there is an undocumented REST endpoint and there are libraries written against
@@ -20,8 +65,24 @@ this endpoint in
 @hyperlink["https://github.com/xvilo/harvest-forecast"]{PHP}. The rest of this
 note tries to document the undocumented API.
 
+@subsection{Using the Forecast API}
 
-@section{Requests}
+@defproc[(connect [host string?] [account-id string?] [access-token string?])
+         connection?]{
+         Returns a connnection to a Forecast server at host
+         given the appropriate authentication details}
+
+To pull data from Forecast, first obtain the team's account id and an
+authentication token. The account id is most easily found by logging in via the
+web interface and reading the number that appears in the URL just after the
+server name. To obtain an authentication token you will need to log in to
+@emph{Harvest} and look for the ``Developers'' section, within which there will
+be an option to obtain a ``Personal Access Token.''
+
+Now obtain a connection with a call to @racket[connect] and use one of
+request forms described in @secref{requests}.
+
+@subsection[#:tag "requests"]{Requests}
 
 In general, a request is a GET request to the appropriate resource, including
 the request headers @tt{Forecast-Account-ID} (which should contain the
@@ -41,7 +102,7 @@ To authenticate, obtain a ``Personal Access Token'' from the developers section
 of Harvest: @url{https://id.getharvest.com/developers}. This needs to be passed
 as a bearer token for every request.
 
-@section{Resources}
+@subsection{Resources}
 
 A GET request to a resource produces a JSON object. Here we document only the
 following resources:
@@ -58,7 +119,7 @@ All of this documentation was produced by making the GET request and inspecting
 the output; the actual API, being undocumented, could of course change at any
 time.
 
-@subsection{Projects}
+@subsubsection{Projects}
 
 A GET request to the @tt{projects} resource returns a dictionary with the single
 key, @tt{projects}. The value associated with this key is an array of
@@ -135,6 +196,9 @@ boolean.
 
 The meanings of @tt{login}, @tt{personal_feed_token_id}, and
 @tt{subscribed} are unknown.
+
+@subsection{Placeholders}
+
 
 
 @subsection{Assignments}

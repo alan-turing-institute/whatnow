@@ -151,8 +151,8 @@
 (define (jsexpr->assignment js)
   #f)
 
-;; (struct client
-;;   ())
+(struct client
+  ())
 
 ;; (define client/c
 ;;   (struct client

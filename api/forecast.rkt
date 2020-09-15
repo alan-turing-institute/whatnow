@@ -18,6 +18,8 @@
   (clients  (-> connection? jsexpr?))
   ))
 
+;;; ---------------------------------------------------------------------------------------------------
+
 ;; A connection represents an instance of a Forecast server
 (struct connection (host acct tokn) #:transparent)
 
@@ -32,7 +34,7 @@
 (define (people conn)
   (get-and-extract conn "people"))
 
-;; people : forecast? -> jsexpr?
+;; placeholders : forecast? -> jsexpr?
 (define (placeholders conn)
  (get-and-extract conn "placeholders"))
 
@@ -52,9 +54,10 @@
 ;; --------------------------------------------------------------------------------------------------
 ;; Utilities
 
-;; For each resource request, Forecast returns a dictionary with a single key that is the name of the
-;; request whose value is the resource actually wanted.
+;; Request a table from the server 
 (define (get-and-extract conn request)
+  ;; Note: Forecast returns a dictionary with a single key.
+  ;; The key is the name of the request and the value is the resource actually wanted.
   (hash-ref (get-json-from-endpoint conn request) (string->symbol request)))
 
 (define (get-json-from-endpoint conn request)
@@ -72,9 +75,6 @@
 
 (define (http-status-OK? status)
   (bytes=? status #"HTTP/1.1 200 OK"))
-
-
-
 
 
 ;; --------------------------------------------------------------------------------------------------

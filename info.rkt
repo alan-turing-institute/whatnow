@@ -1,4 +1,5 @@
 #lang info
 
+(define collection "whatnow")
 (define version "0.0.1")
-(define scribblings '(("scribblings/forecast-api.scrbl" ())))
+(define scribblings '(("scribblings/whatnow.scrbl" ())))
