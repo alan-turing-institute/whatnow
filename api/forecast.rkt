@@ -4,18 +4,18 @@
          racket/port
          json
          net/http-client
-         )
+         (only-in "local-config.rkt" FORECAST-SERVER))
 
 ;;  Interface to Forecast via the undocumented web API
 
 (provide
  (contract-out
-  (connect (-> string? string? string? connection?))
-  (people  (-> connection? jsexpr?))
+  (connect      (-> string? string? connection?))
+  (people       (-> connection? jsexpr?))
   (placeholders (-> connection? jsexpr?))
-  (projects  (-> connection? jsexpr?))
+  (projects     (-> connection? jsexpr?))
   (assignments  (-> connection? jsexpr?))
-  (clients  (-> connection? jsexpr?))
+  (clients      (-> connection? jsexpr?))
   ))
 
 ;;; ---------------------------------------------------------------------------------------------------
@@ -23,10 +23,8 @@
 ;; A connection represents an instance of a Forecast server
 (struct connection (host acct tokn) #:transparent)
 
-(define (connect host account-id access-token)
-  (connection host
-              account-id
-              access-token))
+(define (connect account-id access-token)
+  (connection FORECAST-SERVER account-id access-token))
 
 ;; Fetch complete tables from the server as JSON
 

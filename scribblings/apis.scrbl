@@ -1,6 +1,8 @@
 #lang scribble/manual
 
 @require[
+  @for-label[racket/base]
+  @for-label[json]
   @for-label["../api/forecast.rkt"]]
 
 @title{Interface to the SaaS systems}
@@ -65,102 +67,37 @@ this endpoint in
 @hyperlink["https://github.com/xvilo/harvest-forecast"]{PHP}. The rest of this
 note tries to document the undocumented API.
 
-@subsection{Using the Forecast API}
+@subsection{Connecting to Forecast}
 
-@defproc[(connect [host string?] [account-id string?] [access-token string?])
+@defproc[(connect [account-id string?] [access-token string?])
          connection?]{
-         Returns a connnection to a Forecast server at host
-         given the appropriate authentication details}
+         Returns a structure representing a connnection
+         to the Forecast server, given the appropriate authentication details}
 
-To pull data from Forecast, first obtain the team's account id and an
-authentication token. The account id is most easily found by logging in via the
-web interface and reading the number that appears in the URL just after the
-server name. To obtain an authentication token you will need to log in to
-@emph{Harvest} and look for the ``Developers'' section, within which there will
-be an option to obtain a ``Personal Access Token.''
+The account id is most easily found by logging in via the web interface and
+reading the number that appears in the URL just after the server name. To obtain
+an authentication token you will need to log in to @emph{Harvest} and look for
+the ``Developers'' section, within which there will be an option to obtain a
+``Personal Access Token.'' @margin-note{The Forecast server's URL is hardcoded
+(in @racketmodname["whatnow/api/local-config.rkt"]) as
+@url{https://api.forecastapp.com}}
 
-Now obtain a connection with a call to @racket[connect] and use one of
-request forms described in @secref{requests}.
+Now obtain a connection with a call to @racket[connect] and use one of request
+forms described in @secref{requests}.
 
-@subsection[#:tag "requests"]{Requests}
-
-In general, a request is a GET request to the appropriate resource, including
-the request headers @tt{Forecast-Account-ID} (which should contain the
-identifier for the team's account) and @tt{Authorization} which should be a
-bearer token obtained from Forecast. (That is, it is the string
-@tt{Bearer}, followed by a space, followed by the bearer token.)
-
-@subsection{Endpoint}
-
-The endpoint is:
-
-@centered[@verbatim{https://api.forecastapp.com/}]
-
-@subsection{Authentication}
-
-To authenticate, obtain a ``Personal Access Token'' from the developers section
-of Harvest: @url{https://id.getharvest.com/developers}. This needs to be passed
-as a bearer token for every request.
-
-@subsection{Resources}
-
-A GET request to a resource produces a JSON object. Here we document only the
-following resources:
-
-@tabular[#:sep @hspace[1]
-   (list
-    (list "Project"  @tt{https://api.forecastapp.com/projects})
-    (list "Persons"  @tt{https://api.forecastapp.com/people})
-    (list "NPCs"     @tt{https://api.forecastapp.com/placeholders})
-    (list "Schedule" @tt{https://api.forecastapp.com/assignments})
-    (list "Clients"  @tt{https://api.forecasptapp.com/clients}))]
-
-All of this documentation was produced by making the GET request and inspecting
-the output; the actual API, being undocumented, could of course change at any
-time.
-
-@subsubsection{Projects}
-
-A GET request to the @tt{projects} resource returns a dictionary with the single
-key, @tt{projects}. The value associated with this key is an array of
-@emph{project}. A @emph{project} is a dictionary with the following fields:
-
-@tabular[#:sep @hspace[1] #:row-properties '(bottom-border ())
-                          #:column-properties '(() () right)
-  (list
-    (list "Key"              "JSON type of value" "Example")
-    (list @tt{id}            @elem{@italic{numeric} (integer)} "1824209")
-    (list @tt{harvest_id}    @elem{@italic{numeric} (integer)} "19058649")
-    (list @tt{client_id}     @elem{@italic{numeric} (integer)} "781285")
-    (list @tt{name}          @italic{string}          "Nocell - Phase 1")
-    (list @tt{code}          @italic{string}          "hut23-266")
-    (list @tt{start_date}    @italic{string}          "2018-11-01")
-    (list @tt{end_date}      @italic{string}          "2019-05-31")
-    (list @tt{tags}          @elem{@italic{array} of @italic{string}} "GitHub:266, R-SPET-103")
-    (list @tt{color}         @italic{string}          "orange")
-    (list @tt{notes}         @italic{string}          @tt{null})
-    (list @tt{archived}      @italic{boolean}         @tt{false})
-    (list @tt{updated_at}    @elem{@italic{string} (timestamp)} "")
-    (list @tt{updated_by_id} @elem{@italic{numeric} (integer)} ""))]
-
-Most of these fields are self-explanatory (or anyway we have guessed
-them). Harvest has its own database of projects---even though they are the same
-users---and @tt{harvest_id} connects the project on Forecast with the same
-project on Harvest. The @tt{client_id} refers to the @emph{client}, a grouping
-of projects (which we use to identify the Programme). We use the @tt{code} to
-store the GitHub issue number: all projects must have an issue number although
-of course this is not enforced by Forecast. The @tt{tags} are a list of
-user-assigned tags, which we use in particular to store the `Finance project
-code' when we know it. (It is identified only by being of this particular form
-as other tags may be present in the list.) We occasionally use the @tt{notes}
-field to store a link to the issue on GitHub. 
+@subsection[#:tag "requests"]{Requesting data from Forecast}
 
 
-@subsection{Persons}
+@; --- People
 
-A GET request to the @tt{people} resource returns a dictionary with the single
-key, @tt{people}. The value associated with this key is an array of
-@tt{person}. A @tt{person} is a dictionary with the following fields:
+@defproc[(people [conn connection?])
+                 jsexpr?]{
+
+                 Returns a @tech[#:doc '(lib "json/json.scrbl")]{jsexpr}
+                 containing details of all @tech{persons}.}
+
+The return value is a list of people. Each person is a dictionary with the
+following keys and values.
 
 @tabular[#:sep @hspace[1] #:row-properties '(bottom-border ())
                           #:column-properties '(() () right)
@@ -197,16 +134,103 @@ boolean.
 The meanings of @tt{login}, @tt{personal_feed_token_id}, and
 @tt{subscribed} are unknown.
 
-@subsection{Placeholders}
+@; --- Placeholders
+
+@defproc[(placeholders [conn connection?])
+                       jsexpr?]{
+
+                 Returns a @tech[#:doc '(lib "json/json.scrbl")]{jsexpr}
+                 containing details of all @tech{placeholders}.}
+
+The return value is a list of placeholders. Each placeholder is a dictionary with the
+following keys and values.
+
+@tabular[#:sep @hspace[1] #:row-properties '(bottom-border ())
+                          #:column-properties '(() () right)
+  (list
+    (list "Key"              "JSON type of value" "Example")
+    (list @tt{id}            @elem{@italic{numeric} (integer)} "23092")
+    (list @tt{name}          @italic{string}                   "Resource Required 1")
+    (list @tt{archived}      @italic{boolean}                  @tt{false})
+    (list @tt{roles}         @elem{@italic{array} of @italic{string}} "[\"Placeholder\"]")
+    (list @tt{updated_at}    @elem{@italic{string} (timestamp)}       "")
+    (list @tt{updated_by_id} @elem{@italic{numeric} (integer)}        ""))]
 
 
+@; --- Projects
 
-@subsection{Assignments}
+@defproc[(projects [conn connection?])
+                    jsexpr?]{
 
-A GET request to the @tt{assignments} resource returns a dictionary with the
-single key, @tt{assignments}. The value associated with this key is an array of
-@emph{assignment}. An @emph{assignment} is a dictionary with the following
-fields:
+                   Returns a @tech[#:doc '(lib "json/json.scrbl")]{jsexpr}
+                   containing details of all @tech{projects}.}
+
+The return value is a list of projects. Each project is a dictionary with the
+following keys and values.
+
+@tabular[#:sep @hspace[1] #:row-properties '(bottom-border ())
+                          #:column-properties '(() () right)
+  (list
+    (list "Key"              "JSON type of value" "Example")
+    (list @tt{id}            @elem{@italic{numeric} (integer)} "1824209")
+    (list @tt{harvest_id}    @elem{@italic{numeric} (integer)} "19058649")
+    (list @tt{client_id}     @elem{@italic{numeric} (integer)} "781285")
+    (list @tt{name}          @italic{string}          "Nocell - Phase 1")
+    (list @tt{code}          @italic{string}          "hut23-266")
+    (list @tt{start_date}    @italic{string}          "2018-11-01")
+    (list @tt{end_date}      @italic{string}          "2019-05-31")
+    (list @tt{tags}          @elem{@italic{array} of @italic{string}} "GitHub:266, R-SPET-103")
+    (list @tt{color}         @italic{string}          "orange")
+    (list @tt{notes}         @italic{string}          @tt{null})
+    (list @tt{archived}      @italic{boolean}         @tt{false})
+    (list @tt{updated_at}    @elem{@italic{string} (timestamp)} "")
+    (list @tt{updated_by_id} @elem{@italic{numeric} (integer)} ""))]
+
+Most of these fields are self-explanatory (or anyway we have guessed
+them). Harvest has its own database of projects---even though they are the same
+users---and @tt{harvest_id} connects the project on Forecast with the same
+project on Harvest. The @tt{client_id} refers to the @emph{client}, a grouping
+of projects (which we use to identify the Programme). We use the @tt{code} to
+store the GitHub issue number: all projects must have an issue number although
+of course this is not enforced by Forecast. The @tt{tags} are a list of
+user-assigned tags, which we use in particular to store the `Finance project
+code' when we know it. (It is identified only by being of this particular form
+as other tags may be present in the list.) We occasionally use the @tt{notes}
+field to store a link to the issue on GitHub. 
+
+@; --- Clients
+
+@defproc[(clients [conn connection?])
+                   jsexpr?]{
+
+                 Returns a @tech[#:doc '(lib "json/json.scrbl")]{jsexpr}
+                 containing details of all @tech{clients}.}
+
+The return value is a list of clients. Each clients is a dictionary with the
+following keys and values.
+
+@tabular[#:sep @hspace[1] #:row-properties '(bottom-border ())
+                          #:column-properties '(() () right)
+  (list
+    (list "Key"              "JSON type of value" "Example")
+    (list @tt{id}            @elem{@italic{numeric} (integer)} "769467")
+    (list @tt{name}          @italic{string}          "Health")      
+    (list @tt{harvest_id}    @elem{@italic{numeric} (integer)} "7394382")
+    (list @tt{archived}      @italic{boolean}         @tt{false})
+    (list @tt{updated_at}    @elem{@italic{string} (timestamp)} "")
+    (list @tt{updated_by_id} @elem{@italic{numeric} (integer)} "399979"))]
+
+
+@; --- Assignments
+
+@defproc[(assignments [conn connection?])
+                      jsexpr?]{
+
+                 Returns a @tech[#:doc '(lib "json/json.scrbl")]{jsexpr}
+                 containing details of all @tech{assignments}.}
+
+The return value is a list of assignments. Each assignment is a dictionary with the
+following keys and values.
 
 @tabular[#:sep @hspace[1] #:row-properties '(bottom-border ())
                           #:column-properties '(() () right)
@@ -244,22 +268,4 @@ indicates which days of the week and for how long. We do not use this feature.
 
 Finally, @tt{active_on_days_off} is a flag to indicate whether this assignment
 includes, for example, weekends. We do not use this feature, either.
-
-
-@subsection{Clients}
-
-A GET request to the @tt{clients} resource returns a dictionary with the single
-key, @tt{clients}. The value associated with this key is an array of
-@emph{client}. A @emph{client} is a dictionary with the following fields:
-
-@tabular[#:sep @hspace[1] #:row-properties '(bottom-border ())
-                          #:column-properties '(() () right)
-  (list
-    (list "Key"              "JSON type of value" "Example")
-    (list @tt{id}            @elem{@italic{numeric} (integer)} "769467")
-    (list @tt{name}          @italic{string}          "Health")      
-    (list @tt{harvest_id}    @elem{@italic{numeric} (integer)} "7394382")
-    (list @tt{archived}      @italic{boolean}         @tt{false})
-    (list @tt{updated_at}    @elem{@italic{string} (timestamp)} "")
-    (list @tt{updated_by_id} @elem{@italic{numeric} (integer)} "399979"))]
 

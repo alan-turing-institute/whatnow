@@ -1,7 +1,7 @@
 #lang racket/base
 
 (provide
- FORECAST-ENDPOINT
+ FORECAST-SERVER
  )
 
-(define FORECAST-ENDPOINT "https://api.forecastapp.com")
+(define FORECAST-SERVER "api.forecastapp.com")
