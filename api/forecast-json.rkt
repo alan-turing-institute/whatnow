@@ -1,21 +1,21 @@
 #lang racket/base
 
+;;  Interface to Forecast via the undocumented web API
+
 (require racket/contract
          racket/port
          json
          net/http-client
          (only-in "local-config.rkt" FORECAST-SERVER))
 
-;;  Interface to Forecast via the undocumented web API
-
 (provide
  (contract-out
   (connect      (-> string? string? connection?))
-  (people       (-> connection? jsexpr?))
-  (placeholders (-> connection? jsexpr?))
-  (projects     (-> connection? jsexpr?))
-  (assignments  (-> connection? jsexpr?))
-  (clients      (-> connection? jsexpr?))
+  (get-team         (-> connection? jsexpr?))
+  (get-placeholders (-> connection? jsexpr?))
+  (get-projects     (-> connection? jsexpr?))
+  (get-assignments  (-> connection? jsexpr?))
+  (get-clients      (-> connection? jsexpr?))
   ))
 
 ;;; ---------------------------------------------------------------------------------------------------
@@ -28,24 +28,24 @@
 
 ;; Fetch complete tables from the server as JSON
 
-;; people : forecast? -> jsexpr?
-(define (people conn)
+;; people : connection? -> jsexpr?
+(define (get-team conn)
   (get-and-extract conn "people"))
 
-;; placeholders : forecast? -> jsexpr?
-(define (placeholders conn)
+;; placeholders : connection? -> jsexpr?
+(define (get-placeholders conn)
  (get-and-extract conn "placeholders"))
 
-;; projects : forecast? -> jsexpr?
-(define (projects conn)
+;; projects : connection? -> jsexpr?
+(define (get-projects conn)
   (get-and-extract conn "projects"))
 
-;; schedule : forecast? -> jsexpr?
-(define (assignments conn)
+;; schedule : connection? -> jsexpr?
+(define (get-assignments conn)
   (get-and-extract conn "assignments"))
 
-;; clients : forecast? -> json?
-(define (clients conn)
+;; clients : connection? -> json?
+(define (get-clients conn)
   (get-and-extract conn "clients"))
 
 

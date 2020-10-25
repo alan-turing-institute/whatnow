@@ -1,12 +1,31 @@
 #lang racket/base
 
-(require racket/function
-         basedir
-         "config.rkt"
-         "schedule.rkt")
+#|
 
+Whatnow -- reports
 
-(define schedule (download-the-schedule))
+TODO:
+
+1. 12 months ahead, monthly, by project
+   - fully resourced / partially resourced / not resourced
+   - staffing level (?, ., o, O, *, X)
+
+2. 2 months ahead, weekly, by project
+
+3. Same, for people
+
+|#
+
+(require "schedule.rkt")
+
+(module+ main
+  (define the-schedule (get-the-schedule))
+  (displayln "Successfully obtained")
+  (printf " - ~a people;\n" (length (schedule-people the-schedule)))
+  (printf " - ~a projects;\n" (length (schedule-projects the-schedule)))
+  (printf " - ~a programmes; and\n" (length (schedule-programmes the-schedule)))
+  (printf " - ~a assignments\n" (length (schedule-assignments the-schedule))))
+
 
 
 

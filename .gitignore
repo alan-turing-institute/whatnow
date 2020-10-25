@@ -1,4 +1,5 @@
 *~
+racket.css
 manual-fonts.css
 manual-racket.css
 manual-racket.js
@@ -7,3 +8,7 @@ scribble-common.js
 scribble-style.css
 scribble.css
 /SECRET.txt
+compiled
+/scratch
+/doc
+

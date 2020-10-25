@@ -3,13 +3,13 @@
 @require[
   @for-label[racket/base]
   @for-label[json]
-  @for-label["../api/forecast.rkt"]]
+  @for-label["../api/forecast-json.rkt"]]
 
 @title{Interface to the SaaS systems}
 
-@section{Forecast}
-@defmodule[whatnow/api/forecast]{The @racketmodname[whatnow/api/forecast] library
-provides procedures for accessing the data stored on Forecast.}
+@section{Forecast} @defmodule[whatnow/api/forecast-json]{The
+@racketmodname[whatnow/api/forecast-json] library provides procedures for
+accessing the data stored on Forecast.}
 
 @hyperlink["https://forecastapp.com"]{Forecast} is our SaaS system for recording
 current and future project assignments. We typically ``bill'' projects based on
@@ -18,13 +18,13 @@ the allocations in Forecast. Forecast manages five primary kinds of entity
 
 @itemlist[#:style 'ordered
 
-  @item{@deftech{person}
+  @item{@deftech{Person}
 
         A person represents an individual who is able to be assigned to
         projects. Such an individual will have an account on Forecast and an
         email address.}
 
-  @item{@deftech{placeholder}
+  @item{@deftech{Placeholder}
 
         A placeholder is an entity that is treated like a @tech{person} for the
         purpose of assignments to @tech{projects} but which does not represent
@@ -39,16 +39,16 @@ the allocations in Forecast. Forecast manages five primary kinds of entity
         of @tech{placeholders} to be a fraction of the number of @tech{persons},
         as well as the total assignments to a specific placeholder.}
 
-  @item{@deftech{project}
+  @item{@deftech{Project}
 
         A project corresponding to a unique GitHub issue on the Project Tracker.}
 
-  @item{@deftech{client}
+  @item{@deftech{Client}
 
         A single level grouping of @tech{projects}. We use clients mainly to
         correspond to Turing Programmes.}
 
-  @item{@deftech{assignment}
+  @item{@deftech{Assignment}
 
         A contiguous range of days for which a @tech{person} is assigned to a
         @tech{project}.}
@@ -72,7 +72,7 @@ note tries to document the undocumented API.
 @defproc[(connect [account-id string?] [access-token string?])
          connection?]{
          Returns a structure representing a connnection
-         to the Forecast server, given the appropriate authentication details}
+         to the Forecast server, given the appropriate authentication details.}
 
 The account id is most easily found by logging in via the web interface and
 reading the number that appears in the URL just after the server name. To obtain
@@ -90,9 +90,8 @@ forms described in @secref{requests}.
 
 @; --- People
 
-@defproc[(people [conn connection?])
-                 jsexpr?]{
-
+@defproc[(get-people [conn connection?])
+                        jsexpr?]{
                  Returns a @tech[#:doc '(lib "json/json.scrbl")]{jsexpr}
                  containing details of all @tech{persons}.}
 
@@ -136,9 +135,8 @@ The meanings of @tt{login}, @tt{personal_feed_token_id}, and
 
 @; --- Placeholders
 
-@defproc[(placeholders [conn connection?])
-                       jsexpr?]{
-
+@defproc[(get-placeholders [conn connection?])
+                                    jsexpr?]{
                  Returns a @tech[#:doc '(lib "json/json.scrbl")]{jsexpr}
                  containing details of all @tech{placeholders}.}
 
@@ -159,8 +157,8 @@ following keys and values.
 
 @; --- Projects
 
-@defproc[(projects [conn connection?])
-                    jsexpr?]{
+@defproc[(get-projects [conn connection?])
+                             jsexpr?]{
 
                    Returns a @tech[#:doc '(lib "json/json.scrbl")]{jsexpr}
                    containing details of all @tech{projects}.}
@@ -200,8 +198,8 @@ field to store a link to the issue on GitHub.
 
 @; --- Clients
 
-@defproc[(clients [conn connection?])
-                   jsexpr?]{
+@defproc[(get-clients [conn connection?])
+                           jsexpr?]{
 
                  Returns a @tech[#:doc '(lib "json/json.scrbl")]{jsexpr}
                  containing details of all @tech{clients}.}
@@ -223,8 +221,8 @@ following keys and values.
 
 @; --- Assignments
 
-@defproc[(assignments [conn connection?])
-                      jsexpr?]{
+@defproc[(get-assignments [conn connection?])
+                                  jsexpr?]{
 
                  Returns a @tech[#:doc '(lib "json/json.scrbl")]{jsexpr}
                  containing details of all @tech{assignments}.}
