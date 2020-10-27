@@ -10,7 +10,7 @@ is under development.
 @section{Usage}
 
 At present, whatnow is merely a set of libraries. See the following sections for
-documentation.
+documentation of those libraries.
 
 @include-section["config.scrbl"]
 @include-section["schedule.scrbl"]
