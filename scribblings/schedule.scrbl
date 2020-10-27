@@ -5,7 +5,7 @@
   @for-label["../config.rkt"]
   @for-label["../schedule.rkt"]]
 
-@title{Interface to data held on servers}
+@title{The current schedule}
 
 @defmodule[whatnow/schedule]{The @racketmodname[whatnow/schedule] library
 provides for accessing data from all sources in a consistent way.}

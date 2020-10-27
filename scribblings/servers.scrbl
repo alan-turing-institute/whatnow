@@ -5,7 +5,7 @@
   @for-label[gregor]
   @for-label["../forecast.rkt"]]
 
-@title{Structured Interface to the SaaS Servers}
+@title{Backends}
 
 @section{Forecast}
 

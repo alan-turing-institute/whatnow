@@ -5,7 +5,7 @@
   @for-label[json]
   @for-label["../api/forecast-json.rkt"]]
 
-@title{Interface to the SaaS systems}
+@title{API documentation}
 
 @section{Forecast} @defmodule[whatnow/api/forecast-json]{The
 @racketmodname[whatnow/api/forecast-json] library provides procedures for
