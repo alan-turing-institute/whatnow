@@ -1,6 +1,8 @@
 #lang racket/base
 
-;; Manage local configuration, obtained from config files
+;; Manage local, secret, configuration data 
+;; Config settings are stored in "secrets.txt", in an XDG directory
+
 
 (require racket/function
          racket/contract

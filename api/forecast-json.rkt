@@ -6,7 +6,7 @@
          racket/port
          json
          net/http-client
-         (only-in "local-config.rkt" FORECAST-SERVER))
+         (only-in "forecast-config.rkt" FORECAST-SERVER))
 
 (provide
  (contract-out
