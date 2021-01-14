@@ -2,17 +2,17 @@
 
 #|
 
-Access to all the data held on backend services, including:
+Wraps all servers to provide a unified interface to all the data held on backend services, including:
 
  - people 
  - projects
  - assignments
  - programmes 
 
-This module integrates data from the various backend servers and matches records
-from different systems that refer to the same entity
+Integrates data from the various backend servers and matches records referring to the same entity in
+different systems.
 
-Warnings are emitted using the whatnow logger
+Warnings about inconsistencies are emitted using the whatnow logger
 
 |#
 
@@ -32,7 +32,7 @@ Warnings are emitted using the whatnow logger
  get-the-schedule)
 
 (provide
- (all-from-out "forecast.rkt") ;; FIXME -- redefine person, project, &c
+ (all-from-out "forecast.rkt") ;; FIXME -- redefine person, project, &c within this module
  )
 
 (struct schedule
@@ -43,22 +43,28 @@ Warnings are emitted using the whatnow logger
 ;; - Connect to all servers and download all available data
 ;; - Merge
 ;; - Emit warnings and errors and halt if necessary
+
 (define (get-the-schedule)
   (define the-accounts (config-get-accounts))
 
-  ;; Forecast 
+  ;; --- Forecast ---
+
   (define FORECAST-ACCOUNT (cdr (assoc 'forecast the-accounts)))
+
   (define <forecast>
     (fc:connect
      (server-account-id FORECAST-ACCOUNT)
      (server-account-token FORECAST-ACCOUNT)))
+
   (define the-forecast-schedule
     (schedule
      (fc:get-team <forecast>)
      (fc:get-projects <forecast>)
      (fc:get-clients <forecast>)
      (fc:get-assignments <forecast>)))
+
   (verify-forecast-data the-forecast-schedule)
+
   the-forecast-schedule)
 
 (define (verify-forecast-data sched)
@@ -66,7 +72,7 @@ Warnings are emitted using the whatnow logger
     (let ([c (expect-github-issue-code (fc:project-code p))])
       (when (not c)
         (log-message whatnow-logger 'warning 'forecast
-                     "Missing or malformed project code in Forecast project:"
+                     "Missing or malformed project code in Forecast project"
                      p)))))
 
 ;; expect-github-issue-code : (or/c string? #f) -> (or/c exact-nonnegative-integer? #f)
@@ -74,7 +80,7 @@ Warnings are emitted using the whatnow logger
 ;; That is, something that begins hut23-, followed by a number
 (define (expect-github-issue-code cd)
   (and cd
-       (let ([ps (regexp-match-positions #rx"^hut23-[0-9]+$" cd)])
+       (let ([ps (regexp-match #rx"^hut23-[0-9]+$" cd)])
          (if (or (not ps) (not (null? (cdr ps))))
              #f
              (string->number (substring cd 6))))))

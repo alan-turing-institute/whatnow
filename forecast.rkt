@@ -2,7 +2,7 @@
 
 #|
 
-A wrapper over the Forecast API which re-exports the downloaded records as structs.
+A wrapper over the Forecast JSON API which re-exports the downloaded records as structs.
 
 The re-exports exclude
 - Any archived entity
@@ -44,6 +44,7 @@ There are two checks on records in the JSON data from Forecast:
 
 (provide
  (contract-out
+
   (struct project
     ([id           exact-nonnegative-integer?]
      [harvest-id   (or/c #f exact-nonnegative-integer?)]
@@ -97,8 +98,8 @@ There are two checks on records in the JSON data from Forecast:
 
 ;; ---------------------------------------------------------------------------------------------------
 
-;; Each function obtains the corresponding entities from Forecast and checks for consistency with
-;; certain integrity constraints. It is considered a fatal error if any of these checks fail to
+;; Each `get-` function obtains the corresponding entities from Forecast and checks for consistency
+;; with certain integrity constraints. It is considered a fatal error if any of these checks fail to
 ;; pass. They are as follows:
 
 
@@ -118,12 +119,12 @@ There are two checks on records in the JSON data from Forecast:
     pgms))
 
 ;; assignments : connection? -> (listof assignment?)
-;; Return only assignments to people (exclude assingments to placeholders) 
+;; Return only assignments to people (ie, exclude assignments to placeholders) 
 (define (get-assignments conn)
   (let ([asgns (filter-map json->assignment (raw:get-assignments conn))])
     (filter (λ (a) (assignment-person-id a)) asgns)))
 
-;; json->person : jsepxr? -> person?
+;; Return a person? or #f if the person has been archived 
 (define (json->person js)
   (and (not (archived? js))
        (person
@@ -169,12 +170,12 @@ There are two checks on records in the JSON data from Forecast:
 
 A note on the shenanigans below.
 
-The json library represents JSON `null` as the symbol 'null. Typically, this means that the value
-is missing. In some cases a missing value is permitted in a Forecast record returned by this
-module, and in those cases the missing is represented by the value #f. In other cases a missing
-value is not allowed (and an error is raised here). However, sometimes the type of the value is
-boolean? and in those cases, although a missing is not allowed, a value of #f is perfectly
-reasonable.
+The json library represents JSON `null` as the symbol 'null. Typically, a value of 'null is used to
+indicate that the actual value is missing. In some cases a missing value is permitted in a Forecast
+record returned by this module, and in those cases the missing is represented by the value #f. In
+other cases a missing value is not allowed (and an error is raised here). However, sometimes the type
+of the value is boolean? and in those cases, although a missing is not allowed, a value of #f is
+perfectly reasonable.
 
 |#
 

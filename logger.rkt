@@ -1,7 +1,8 @@
 #lang racket/base
 
 #|
-Define a new logger for reporting whatnow-related messages
+
+Export a logger for reporting whatnow-related messages
 
 Whatnow reporting is outside the standard logger (that is, messages are not
 propagated to standard error).
