@@ -28,8 +28,13 @@ Warnings about inconsistencies are emitted using the whatnow logger
 ;; Interface
 
 (provide
- (struct-out schedule)
- get-the-schedule)
+ (contract-out 
+  (struct schedule
+    ([people      (listof fc:person?)]
+     [projects    (listof fc:project?)]
+     [programmes  (listof fc:client?)]
+     [assignments (listof fc:assignment?)]))
+  (get-the-schedule (-> schedule?))))
 
 (provide
  (all-from-out "forecast.rkt") ;; FIXME -- redefine person, project, &c within this module
