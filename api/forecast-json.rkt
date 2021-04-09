@@ -4,17 +4,20 @@
 
 (require racket/contract
          racket/port
+         racket/string
          json
+         gregor
          net/http-client
+         net/uri-codec
          (only-in "forecast-config.rkt" FORECAST-SERVER))
 
 (provide
  (contract-out
-  (connect      (-> string? string? connection?))
+  (connect          (-> string? string? connection?))
   (get-team         (-> connection? jsexpr?))
   (get-placeholders (-> connection? jsexpr?))
   (get-projects     (-> connection? jsexpr?))
-  (get-assignments  (-> connection? jsexpr?))
+  (get-assignments  (-> connection? date? date? jsexpr?))
   (get-clients      (-> connection? jsexpr?))
   ))
 
@@ -40,9 +43,14 @@
 (define (get-projects conn)
   (get-and-extract conn "projects"))
 
-;; schedule : connection? -> jsexpr?
-(define (get-assignments conn)
-  (get-and-extract conn "assignments"))
+;; get-assignments : connection? date? date?  -> jsexpr?
+(define (get-assignments conn start-date end-date)
+  (define assignments-query
+    (string-append
+     "assignments?"
+     (alist->form-urlencoded `((start_date . ,(~t start-date "YYYY-MM-dd"))
+                               (end_date . ,(~t end-date "YYYY-MM-dd"))))))
+  (get-and-extract conn assignments-query))
 
 ;; clients : connection? -> json?
 (define (get-clients conn)
@@ -56,7 +64,8 @@
 (define (get-and-extract conn request)
   ;; Note: Forecast returns a dictionary with a single key.
   ;; The key is the name of the request and the value is the resource actually wanted.
-  (hash-ref (get-json-from-endpoint conn request) (string->symbol request)))
+  (hash-ref (get-json-from-endpoint conn request)
+            (string->symbol (car (string-split request "?")))))
 
 (define (get-json-from-endpoint conn request)
   (define-values (status headers response)
@@ -68,7 +77,10 @@
                 (string-append "Forecast-Account-ID: " (connection-acct conn))
                 (string-append "Authorization: Bearer " (connection-tokn conn)))))
   (when (not (http-status-OK? status))
-    (raise-user-error "Failed to connect to Forecast" status))
+    (let ([error-response (hash-ref (string->jsexpr (port->string response)) 'errors)])
+      (raise-user-error "Failed to connect to Forecast\n"
+                        (bytes->string/utf-8 status)
+                        error-response)))
   (string->jsexpr (port->string response)))
 
 (define (http-status-OK? status)

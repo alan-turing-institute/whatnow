@@ -118,10 +118,16 @@ There are two checks on records in the JSON data from Forecast:
   (let ([pgms (filter-map json->client (raw:get-clients conn))])
     pgms))
 
-;; assignments : connection? -> (listof assignment?)
-;; Return only assignments to people (ie, exclude assignments to placeholders) 
-(define (get-assignments conn)
-  (let ([asgns (filter-map json->assignment (raw:get-assignments conn))])
+;; assignments : connection? date? date? -> (listof assignment?)
+;; 
+;; Return only assignments to people (ie, exclude assingments to placeholders)
+;;
+;; The 'assignments' Forecast endpoint (https://api.forecastapp.com/assignments)
+;; now requires time bounds to be specified (with a maximum timeframe of 180 days).
+;;
+(define (get-assignments conn start-date end-date)
+  (let ([asgns (filter-map json->assignment
+                           (raw:get-assignments conn start-date end-date))])
     (filter (λ (a) (assignment-person-id a)) asgns)))
 
 ;; Return a person? or #f if the person has been archived 
