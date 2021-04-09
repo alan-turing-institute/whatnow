@@ -68,7 +68,6 @@
             (string->symbol (car (string-split request "?")))))
 
 (define (get-json-from-endpoint conn request)
-  (displayln request)
   (define-values (status headers response)
     (http-sendrecv
      (connection-host conn)
