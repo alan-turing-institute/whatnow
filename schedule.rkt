@@ -20,6 +20,7 @@ Warnings about inconsistencies are emitted using the whatnow logger
          (only-in racket/string string-prefix?))
 
 (require "config.rkt"
+         "db/types.rkt"
          "logger.rkt"
          (prefix-in fc: "forecast.rkt")
          )
@@ -30,19 +31,19 @@ Warnings about inconsistencies are emitted using the whatnow logger
 (provide
  (contract-out 
   (struct schedule
-    ([people      (listof fc:person?)]
-     [projects    (listof fc:project?)]
-     [programmes  (listof fc:client?)]
-     [assignments (listof fc:assignment?)]))
+    ([people      (listof person?)]
+     [projects    (listof project?)]
+     [programmes  (listof client?)]
+     [assignments (listof assignment?)]))
   (get-the-schedule (-> schedule?))))
-
-(provide
- (all-from-out "forecast.rkt") ;; FIXME -- redefine person, project, &c within this module
- )
 
 (struct schedule
   (people projects programmes assignments)
   #:transparent)
+
+
+;; ---------------------------------------------------------------------------------------------------
+;; Aggregate data from all servers
 
 ;; get-the-schedule : -> schedule?
 ;; - Connect to all servers and download all available data
@@ -74,7 +75,7 @@ Warnings about inconsistencies are emitted using the whatnow logger
 
 (define (verify-forecast-data sched)
   (for ([p (in-list (schedule-projects sched))])
-    (let ([c (expect-github-issue-code (fc:project-code p))])
+    (let ([c (expect-github-issue-code (project-code p))])
       (when (not c)
         (log-message whatnow-logger 'warning 'forecast
                      "Missing or malformed project code in Forecast project"
@@ -89,3 +90,10 @@ Warnings about inconsistencies are emitted using the whatnow logger
          (if (or (not ps) (not (null? (cdr ps))))
              #f
              (string->number (substring cd 6))))))
+
+
+;; ---------------------------------------------------------------------------------------------------
+;; Utility functions for dealing with schedules
+
+
+

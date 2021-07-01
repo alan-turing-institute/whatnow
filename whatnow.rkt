@@ -16,7 +16,8 @@ TODO:
 
 |#
 
-(require "schedule.rkt")
+(require "schedule.rkt"
+         gregor)
 
 (module+ main
   (define the-schedule (get-the-schedule))
@@ -27,7 +28,23 @@ TODO:
   (printf " - ~a assignments\n" (length (schedule-assignments the-schedule))))
 
 
+#|
 
+People view
 
+(summarise-people-by-week sched date-from date-to)
+- sched : schedule?
+- date-from : a date?, which is 'rounded down' to the most recent Monday
+- date-to : a date?, which is 'rounded up' to the next Sunday.
 
+Produces a week-by-week summary of the staffing level of each person
+
+|#
+
+;; summarise-people-by-week : schedule? date? date?
+;; -> [assoc person? [assoc date? number?]]   
+(define (summarise-people-by-week sched date-from date-to)
+  (define weeks (period-by-week date-from date-to))
+  #f
+  )
 

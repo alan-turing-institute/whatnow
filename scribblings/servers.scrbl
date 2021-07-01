@@ -3,22 +3,22 @@
 @require[
   @for-label[(except-in racket/base date date?)]
   @for-label[gregor]
-  @for-label["../forecast.rkt"]]
+  @for-label["../forecast.rkt" "../db/types.rkt"]]
 
 @title{Backends}
 
 @section{Forecast}
 
 @defmodule[whatnow/forecast]{The @racketmodname[whatnow/forecast] library
-provides a wrapper around @racketmodname[whatnow/apis/forecast-json] which
+provides a wrapper around @racketmodname[whatnow/apis/forecast-json] that
 re-exports the downloads as structured data.}
 
 These functions check that all fields are present in the JSON returned from
 Forecast; and for some fields a check is made that the field is not-null. An
 error is raised if these conditions are not satisfied.
 
-Note that placeholders are not exported, nor is any assignment to a
-placeholder. Furthermore, only archived entities are also not returned.
+Note that placeholders are not exported, nor is any assignment to a placeholder,
+nor are archived entities.
 
 @defproc[(connect [account-id string?] [access-token string?])
                   connection?]{Rexported from @secref["Connecting_to_Forecast"
@@ -26,43 +26,23 @@ placeholder. Furthermore, only archived entities are also not returned.
 
 @defproc[(get-team [conn connection?])
                    (listof person?)]{
-                 Returns the team.}
 
-@defstruct*[person
-    ([id         exact-nonnegative-integer?]
-     [harvest-id (or/c #f exact-nonnegative-integer?)]
-     [first-name (or/c #f string?)]  
-     [last-name  (or/c #f string?)]  
-     [email      (or/c #f string?)]  
-     [login?     boolean?]
-     [roles      (listof string?)])
-     #:transparent]{
-     People.}
+  Returns the team.}
 
-@defstruct*[project
-    ([id           exact-nonnegative-integer?]
-     [harvest-id   (or/c #f exact-nonnegative-integer?)]
-     [name         string?]       
-     [code         (or/c #f string?)]           
-     [tags         (listof string?)]
-     [client-id    (or/c #f exact-nonnegative-integer?)])
-     #:transparent]{
-     Projects.}
+@defproc[(get-projects [conn connection?])
+                       (listof project?)]{
+                       
+  Returns all projects.}
 
-@defstruct*[client
-    ([id   exact-nonnegative-integer?]
-     [name string?])          
-     #:transparent]{
-     Clients.}
+@defproc[(get-clients [conn connection?])
+                   (listof person?)]{
+                   
+  Returns the clients.}
 
-@defstruct*[assignments
-    ([person-id  exact-nonnegative-integer?]
-     [project-id exact-nonnegative-integer?] 
-     [start-date date?]
-     [end-date   date?]
-     [allocation exact-nonnegative-integer?])
-     #:transparent]{
-     Assignments. Note that the field @racket[allocation] is in seconds per day.}
+@defproc[(get-assignments [conn connection?])
+                   (listof person?)]{
+
+  Returns all assignments.}
 
 
 

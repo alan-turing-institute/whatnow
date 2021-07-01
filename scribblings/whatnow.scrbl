@@ -13,6 +13,7 @@ At present, whatnow is merely a set of libraries. See the following sections for
 documentation of those libraries.
 
 @include-section["config.scrbl"]
+@include-section["db.scrbl"]
 @include-section["schedule.scrbl"]
 @include-section["servers.scrbl"]
 @include-section["apis.scrbl"]

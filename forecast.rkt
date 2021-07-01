@@ -15,86 +15,20 @@ There are two checks on records in the JSON data from Forecast:
 
 |#
 
-
 (require racket/contract
          racket/string
          (only-in racket/list filter-map)
-         gregor
+         gregor)
+
+(require "db/types.rkt"
          (prefix-in raw: "api/forecast-json.rkt"))
 
-(provide
- (rename-out [raw:connect connect])
- get-team
- get-projects
- get-clients
- get-assignments
- )
-
-(provide
- (contract-out
-  (struct person 
-    ([id         exact-nonnegative-integer?]
-     [harvest-id (or/c #f exact-nonnegative-integer?)]
-     [first-name (or/c #f string?)]  
-     [last-name  (or/c #f string?)]  
-     [email      (or/c #f string?)]  
-     [login?     boolean?]
-     [roles      (listof string?)]
-     ))))
-
-(provide
- (contract-out
-
-  (struct project
-    ([id           exact-nonnegative-integer?]
-     [harvest-id   (or/c #f exact-nonnegative-integer?)]
-     [name         string?]       
-     [code         (or/c #f string?)]           
-     [tags         (listof string?)]
-     [client-id    (or/c #f exact-nonnegative-integer?)] 
-     ))))
-
-(provide
- (contract-out
-  (struct client  
-    ([id   exact-nonnegative-integer?]
-     [name string?]          
-     ))))
-
-(provide
- (contract-out
-  (struct assignment
-    ([person-id  exact-nonnegative-integer?]
-     [project-id exact-nonnegative-integer?] 
-     [start-date date?]
-     [end-date   date?]
-     [allocation exact-nonnegative-integer?] ; Seconds per day
-     ))))
-
-
-;; ---------------------------------------------------------------------------------------------------
-
-(struct person
-  (id harvest-id first-name last-name email login? roles)
-  #:transparent)
-
-(struct project
-  (id
-   harvest-id
-   name
-   code
-   tags
-   client-id)
-  #:transparent)
-
-(struct client
-  (id name)
-  #:transparent)
-
-(struct assignment
-  (person-id project-id start-date end-date allocation)
-  #:transparent)
-
+(provide (rename-out [raw:connect connect])
+         get-team
+         get-projects
+         get-clients
+         get-assignments
+         )
 
 ;; ---------------------------------------------------------------------------------------------------
 
@@ -153,14 +87,15 @@ There are two checks on records in the JSON data from Forecast:
         [extract/not-null 'name js])))
 
 (define (json->assignment js)
-  (let ([a (assignment
-            [extract          'person_id  js] ; If #f, this assignment is to a placeholder
-            [extract/not-null 'project_id js]
-            [iso8601->date (extract/not-null 'start_date js)]
-            [iso8601->date (extract/not-null 'end_date   js)]
-            [extract/not-null 'allocation js])])
-    (and (assignment-person-id a)
-         a)))
+  ;; If person_id is #f, this assignment is to a placeholder
+  (and (extract 'person_id js)
+       (assignment
+        [iso8601->date (extract/not-null 'start_date js)]
+        [iso8601->date (extract/not-null 'end_date   js)]
+        [extract/not-null 'allocation js]
+        [extract          'person_id  js] 
+        [extract/not-null 'project_id js]
+)))
 
 (define (archived? js)
   (extract 'archived js))
