@@ -23,6 +23,7 @@ Warnings about inconsistencies are emitted using the whatnow logger
          "db/types.rkt"
          "logger.rkt"
          (prefix-in fc: "forecast.rkt")
+         gregor
          )
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -41,16 +42,13 @@ Warnings about inconsistencies are emitted using the whatnow logger
   (people projects programmes assignments)
   #:transparent)
 
-
-;; ---------------------------------------------------------------------------------------------------
-;; Aggregate data from all servers
-
-;; get-the-schedule : -> schedule?
-;; - Connect to all servers and download all available data
+;; get-the-schedule : date? date? -> schedule?
+;; - Connect to all servers and download all available data, with assignments
+;;   between start-date and end-date (see the note on `get-assigments`)
 ;; - Merge
 ;; - Emit warnings and errors and halt if necessary
+(define (get-the-schedule start-date end-date)
 
-(define (get-the-schedule)
   (define the-accounts (config-get-accounts))
 
   ;; --- Forecast ---
@@ -67,7 +65,7 @@ Warnings about inconsistencies are emitted using the whatnow logger
      (fc:get-team <forecast>)
      (fc:get-projects <forecast>)
      (fc:get-clients <forecast>)
-     (fc:get-assignments <forecast>)))
+     (fc:get-assignments <forecast> start-date end-date)))
 
   (verify-forecast-data the-forecast-schedule)
 

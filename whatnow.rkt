@@ -16,11 +16,11 @@ TODO:
 
 |#
 
-(require "schedule.rkt"
-         gregor)
+(require (only-in gregor date)
+         "schedule.rkt")
 
 (module+ main
-  (define the-schedule (get-the-schedule))
+  (define the-schedule (get-the-schedule (date 2020 04 01) (date 2020 05 01)))
   (displayln "Successfully obtained")
   (printf " - ~a people;\n" (length (schedule-people the-schedule)))
   (printf " - ~a projects;\n" (length (schedule-projects the-schedule)))
