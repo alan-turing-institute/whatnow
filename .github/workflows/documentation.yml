@@ -11,19 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1
+        uses: actions/checkout@v2
         with:
           persist-credentials: false
-
-      - name: Build scribble
-        uses: Bogdanp/setup-racket@v0.10
+          
+      - name: Install Racket
+        uses: Bogdanp/setup-racket@latest
         with:
           distribution: 'full'
-          variant: 'regular'
-          version: '7.8'
-          packages: 'basedir, gregor'
-                    
-      - run: raco scribble --htmls --dest doc --redirect-main https://docs.racket-lang.org +m scribblings/whatnow.scrbl
+          variant: 'CS'
+          version: 'stable'
+          
+      - name: Install dependencies (from info.rkt)
+        run: raco pkg install --auto --batch
+
+      - name: Scribble documentation              
+        run: raco scribble --htmls --dest doc --redirect-main https://docs.racket-lang.org +m scribblings/whatnow.scrbl
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@3.6.1
