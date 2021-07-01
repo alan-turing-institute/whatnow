@@ -20,8 +20,8 @@ There are two checks on records in the JSON data from Forecast:
          (only-in racket/list filter-map)
          gregor)
 
-(require "db/types.rkt"
-         (prefix-in raw: "api/forecast-json.rkt"))
+(require "../db/types.rkt"
+         (prefix-in raw: "forecast-json.rkt"))
 
 (provide (rename-out [raw:connect connect])
          get-team

@@ -19,12 +19,14 @@ Warnings about inconsistencies are emitted using the whatnow logger
 (require racket/contract
          (only-in racket/string string-prefix?))
 
-(require "config.rkt"
-         "db/types.rkt"
-         "logger.rkt"
-         (prefix-in fc: "forecast.rkt")
-         gregor
+(require gregor)
+
+(require "../servers/config.rkt"
+         (prefix-in fc: "../servers/forecast.rkt")
+         "../db/types.rkt"
+         "../logging/logger.rkt"
          )
+
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; Interface
