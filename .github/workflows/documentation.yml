@@ -16,7 +16,7 @@ jobs:
           persist-credentials: false
           
       - name: Install Racket
-        uses: Bogdanp/setup-racket@latest
+        uses: Bogdanp/setup-racket@v1.4
         with:
           distribution: 'full'
           variant: 'CS'
@@ -29,7 +29,7 @@ jobs:
         run: raco scribble --htmls --dest doc --redirect-main https://docs.racket-lang.org +m scribblings/whatnow.scrbl
 
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@3.6.1
+        uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
