@@ -3,14 +3,14 @@
 @require[
   @for-label[(except-in racket/base date date?)]
   @for-label[gregor]
-  @for-label["../forecast.rkt" "../db/types.rkt"]]
+  @for-label["../server/forecast.rkt" "../db/types.rkt"]]
 
 @title{Backends}
 
 @section{Forecast}
 
-@defmodule[whatnow/forecast]{The @racketmodname[whatnow/forecast] library
-provides a wrapper around @racketmodname[whatnow/apis/forecast-json] that
+@defmodule[whatnow/forecast]{The @racketmodname[whatnow/server/orecast] library
+provides a wrapper around @racketmodname[whatnow/server/forecast-json] that
 re-exports the downloads as structured data.}
 
 These functions check that all fields are present in the JSON returned from
