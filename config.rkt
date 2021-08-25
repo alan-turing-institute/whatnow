@@ -13,8 +13,8 @@
  config-get-accounts)
 
 
-;; A server-account is a generic store for an "identifier" and an "authentication token".
-(struct server-account (id token) #:transparent)
+;; A server-account is a generic store for a host, identifier, and an authentication token.
+(struct server-account (host id token) #:transparent)
 
 ;; config-get-accounts : string? -> [List-of pair?]  
 ;; Retrieve account details from secrets file
@@ -37,6 +37,7 @@
 
 (define (get-forecast-account config-dict)
   (server-account
+   (hash-ref config-dict 'forecast-host)
    (hash-ref config-dict 'forecast-account-id)
    (hash-ref config-dict 'harvest-access-token)))
 

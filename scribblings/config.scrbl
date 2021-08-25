@@ -3,7 +3,7 @@
 @require[
   @for-label[racket/base]
   @for-label[basedir]
-  @for-label["../config.rkt"]]
+  @for-label["../servers/config.rkt"]]
              
 @title{Configuration}
 
@@ -12,7 +12,7 @@ There are three kinds of configuration data in Whatnow:
 
   @item{Defaults for various program options.}
 
-  @item{Data the is required for a local installation of Whatnow, such as the
+  @item{Data that is required for a local installation of Whatnow, such as the
   specifics of where to find the various servers. This kind of data is held in
   Racket modules. See @secref["local-configuration"].}
 

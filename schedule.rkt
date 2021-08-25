@@ -2,15 +2,14 @@
 
 #|
 
-Wraps all servers to provide a unified interface to all the data held on backend services, including:
+Wrap all servers to provide a unified interface to all the data, including:
 
  - people 
  - projects
  - assignments
  - programmes 
 
-Integrates data from the various backend servers and matches records referring to the same entity in
-different systems.
+Match records referring to the same entity in different systems.
 
 Warnings about inconsistencies are emitted using the whatnow logger
 
@@ -21,10 +20,10 @@ Warnings about inconsistencies are emitted using the whatnow logger
 
 (require gregor)
 
-(require "../servers/config.rkt"
-         (prefix-in fc: "../servers/forecast.rkt")
-         "../db/types.rkt"
-         "../logging/logger.rkt"
+(require "config.rkt"
+         (prefix-in fc: "server/forecast.rkt")
+         "db/types.rkt"
+         "logging/logger.rkt"
          )
 
 
@@ -45,11 +44,12 @@ Warnings about inconsistencies are emitted using the whatnow logger
   #:transparent)
 
 ;; get-the-schedule : date? date? -> schedule?
-;; - Connect to all servers and download all available data, with assignments
-;;   between start-date and end-date (see the note on `get-assigments`)
+;; - Connect to all servers and download all available data. Currently gets assigments which overlap
+;; the period of 180 days starting today (due to a Forecast restriction)
 ;; - Merge
 ;; - Emit warnings and errors and halt if necessary
-(define (get-the-schedule start-date end-date)
+
+(define (get-the-schedule)
 
   (define the-accounts (config-get-accounts))
 
@@ -59,7 +59,8 @@ Warnings about inconsistencies are emitted using the whatnow logger
 
   (define <forecast>
     (fc:connect
-     (server-account-id FORECAST-ACCOUNT)
+     (server-account-host  FORECAST-ACCOUNT)
+     (server-account-id    FORECAST-ACCOUNT)
      (server-account-token FORECAST-ACCOUNT)))
 
   (define the-forecast-schedule
@@ -67,7 +68,7 @@ Warnings about inconsistencies are emitted using the whatnow logger
      (fc:get-team <forecast>)
      (fc:get-projects <forecast>)
      (fc:get-clients <forecast>)
-     (fc:get-assignments <forecast> start-date end-date)))
+     (fc:get-assignments <forecast> (today) (+days (today) 180))))
 
   (verify-forecast-data the-forecast-schedule)
 

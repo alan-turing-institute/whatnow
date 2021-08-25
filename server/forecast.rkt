@@ -21,47 +21,44 @@ There are two checks on records in the JSON data from Forecast:
          gregor)
 
 (require "../db/types.rkt"
-         (prefix-in raw: "forecast-json.rkt"))
+         "forecast-json.rkt")
 
-(provide (rename-out [raw:connect connect])
+(provide connect
          get-team
          get-projects
          get-clients
          get-assignments
+         get-team/json
+         get-projects/json
+         get-clients/json
+         get-assignments/json
          )
 
 ;; ---------------------------------------------------------------------------------------------------
 
-;; Each `get-` function obtains the corresponding entities from Forecast and checks for consistency
-;; with certain integrity constraints. It is considered a fatal error if any of these checks fail to
-;; pass. They are as follows:
+;; Each `get-` function obtains the corresponding entities from Forecast and checks that certain
+;; fields are not null. Archived entities are excluded. 
 
 
-;; people : connection? -> (listof person/forecast?)  
+;; people : connection? -> (listof person?)  
 (define (get-team conn)
-  (let ([ppl (filter-map json->person (raw:get-team conn))])
-    ppl))
+  (filter-map json->person (get-team/json conn)))
 
-;; projects : connection? -> (listof project/forecast?)
+;; projects : connection? -> (listof project?)
 (define (get-projects conn)
-  (let ([prjs (filter-map json->project (raw:get-projects conn))])
-    prjs))
+  (filter-map json->project (get-projects/json conn)))
 
-;; programmes : connection? -> (listof programme/forecast?)
+;; programmes : connection? -> (listof programme?)
 (define (get-clients conn)
-  (let ([pgms (filter-map json->client (raw:get-clients conn))])
-    pgms))
+  (filter-map json->client (get-clients/json conn)))
 
 ;; assignments : connection? date? date? -> (listof assignment?)
 ;; 
-;; Return only assignments to people (ie, exclude assingments to placeholders)
-;;
-;; The 'assignments' Forecast endpoint (https://api.forecastapp.com/assignments)
-;; now requires time bounds to be specified (with a maximum timeframe of 180 days).
-;;
+;; Returns only assignments to people (ie, excludes assignments to placeholders)
+;; Forecast requires end-date - start-date <= 180 days
 (define (get-assignments conn start-date end-date)
   (let ([asgns (filter-map json->assignment
-                           (raw:get-assignments conn start-date end-date))])
+                           (get-assignments/json conn start-date end-date))])
     (filter (λ (a) (assignment-person-id a)) asgns)))
 
 ;; Return a person? or #f if the person has been archived 
@@ -111,18 +108,16 @@ There are two checks on records in the JSON data from Forecast:
 
 A note on the shenanigans below.
 
-The json library represents JSON `null` as the symbol 'null. Typically, a value of 'null is used to
-indicate that the actual value is missing. In some cases a missing value is permitted in a Forecast
-record returned by this module, and in those cases the missing is represented by the value #f. In
-other cases a missing value is not allowed (and an error is raised here). However, sometimes the type
-of the value is boolean? and in those cases, although a missing is not allowed, a value of #f is
-perfectly reasonable.
+Forecast allows certain fields to have null values. For example, the `first-name` field of the
+`person` record may be empty. In this case, the returned JSON value will be 'null.
+
+The function `extract` sets the field in the corresponding struct is set to #f (the Scheme idiom for
+Nothing). The function `extract/not-null` insists that the JSON value is not 'null and will raise an
+error if it is.
 
 |#
 
-;; extract : symbol? jsexpr? -> any/c
-;; Extract a value from a jsexpr dictionary given the key. Halt with an error if the field is not
-;; present or if the value is #f.
+;; extract/not-null : symbol? jsexpr? -> any/c
 (define (extract/not-null key dict)
   (let ([v (hash-ref dict key 'missing)])
     (when (eq? v 'missing)
@@ -136,8 +131,7 @@ perfectly reasonable.
     v))
 
 ;; extract : symbol? jsexpr? -> any/c
-;; Extract a value from a jsexpr dictionary given the key. Halt with an error if the field is not
-;; present. If the value is 'null, replace it with #f
+;; Replaces the json value 'null with #f
 (define (extract key dict)
   (let ([v (hash-ref dict key 'missing)])
     (when (eq? v 'missing)

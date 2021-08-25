@@ -8,17 +8,16 @@
          json
          gregor
          net/http-client
-         net/uri-codec
-         (only-in "forecast-config.rkt" FORECAST-SERVER))
+         net/uri-codec)
 
 (provide
  (contract-out
-  (connect          (-> string? string? connection?))
-  (get-team         (-> connection? jsexpr?))
-  (get-placeholders (-> connection? jsexpr?))
-  (get-projects     (-> connection? jsexpr?))
-  (get-assignments  (-> connection? date? date? jsexpr?))
-  (get-clients      (-> connection? jsexpr?))
+  (connect               (-> string? string? string? connection?))
+  (get-team/json         (-> connection? jsexpr?))
+  (get-placeholders/json (-> connection? jsexpr?))
+  (get-projects/json     (-> connection? jsexpr?))
+  (get-assignments/json  (-> connection? date? date? jsexpr?))
+  (get-clients/json      (-> connection? jsexpr?))
   ))
 
 ;;; ---------------------------------------------------------------------------------------------------
@@ -26,62 +25,65 @@
 ;; A connection represents an instance of a Forecast server
 (struct connection (host acct tokn) #:transparent)
 
-(define (connect account-id access-token)
-  (connection FORECAST-SERVER account-id access-token))
+(define (connect host account-id access-token)
+  (connection host account-id access-token))
 
 ;; Fetch complete tables from the server as JSON
 
-;; people : connection? -> jsexpr?
-(define (get-team conn)
-  (get-and-extract conn "people"))
+(define (get-team/json conn)
+  (get-resource conn "people"))
 
-;; placeholders : connection? -> jsexpr?
-(define (get-placeholders conn)
- (get-and-extract conn "placeholders"))
+(define (get-placeholders/json conn)
+ (get-resource conn "placeholders"))
 
-;; projects : connection? -> jsexpr?
-(define (get-projects conn)
-  (get-and-extract conn "projects"))
+(define (get-projects/json conn)
+  (get-resource conn "projects"))
 
-;; get-assignments : connection? date? date?  -> jsexpr?
-(define (get-assignments conn start-date end-date)
-  (define assignments-query
-    (string-append
-     "assignments?"
-     (alist->form-urlencoded `((start_date . ,(~t start-date "YYYY-MM-dd"))
-                               (end_date . ,(~t end-date "YYYY-MM-dd"))))))
-  (get-and-extract conn assignments-query))
+(define (get-assignments/json conn start-date end-date)
+  ;; Forecast now requires a start and end date when requesting assignments. An assingment is returned
+  ;; if it has any overlap with the closed range [start_date, end_date]
+  (get-resource
+   conn
+   "assignments"
+   `((start_date . ,(~t start-date "YYYY-MM-dd"))
+     (end_date   . ,(~t end-date "YYYY-MM-dd")))))
 
 ;; clients : connection? -> json?
-(define (get-clients conn)
-  (get-and-extract conn "clients"))
+(define (get-clients/json conn)
+  (get-resource conn "clients"))
 
 
 ;; --------------------------------------------------------------------------------------------------
 ;; Utilities
 
 ;; Request a table from the server 
-(define (get-and-extract conn request)
-  ;; Note: Forecast returns a dictionary with a single key.
-  ;; The key is the name of the request and the value is the resource actually wanted.
-  (hash-ref (get-json-from-endpoint conn request)
-            (string->symbol (car (string-split request "?")))))
-
-(define (get-json-from-endpoint conn request)
+(define (get-resource conn resource [params #f])
+  ;; It's odd we have to build the URL ourselves for http-sendrecv
+  (define request
+    (if params
+        (string-append resource "?" (alist->form-urlencoded params))
+        resource))
+  
   (define-values (status headers response)
     (http-sendrecv
      (connection-host conn)
-     (string-append "/" request)
+     (string-append "/" request) 
      #:ssl? #t
      #:headers (list
                 (string-append "Forecast-Account-ID: " (connection-acct conn))
                 (string-append "Authorization: Bearer " (connection-tokn conn)))))
+
   (when (not (http-status-OK? status))
     (let ([error-response (hash-ref (string->jsexpr (port->string response)) 'errors)])
       (raise-user-error "Failed to connect to Forecast\n"
                         (bytes->string/utf-8 status)
                         error-response)))
-  (string->jsexpr (port->string response)))
+
+  ;; Forecast returns a dictionary with a single key, whose value is the table we actually want.
+  (let ([response/json (string->jsexpr (port->string response))])
+    (hash-ref response/json 
+              (string->symbol resource))))
+
 
 (define (http-status-OK? status)
   (bytes=? status #"HTTP/1.1 200 OK"))
