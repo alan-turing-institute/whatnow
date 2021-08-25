@@ -3,7 +3,7 @@
 @require[
   @for-label[racket/base]
   @for-label[json]
-  @for-label["../api/forecast-json.rkt"]]
+  @for-label["../server/forecast-json.rkt"]]
 
 @title{API documentation}
 
