@@ -16,12 +16,13 @@ TODO:
 
 |#
 
-(require 
-         gregor
-         "schedule.rkt")
 
 (module+ main
+  (require gregor
+         "schedule.rkt"
+         "table.rkt")
   (define the-schedule (get-the-schedule))
+
   (displayln "Successfully obtained")
   (printf " - ~a people;\n" (length (schedule-people the-schedule)))
   (printf " - ~a projects;\n" (length (schedule-projects the-schedule)))
@@ -52,19 +53,12 @@ Produces a week-by-week summary of the staffing level of each person
          gregor
          gregor/period)
 
-(require "db/types.rkt")
+(require "schedule.rkt"
+         "db/types.rkt"
+         "table.rkt")
 
 
-;; people-table : schedule? date? date? -> (list-of string?)
-;; Make a prettily formatted text table
-
-;; Example:
-
-;;                  | 2001                          | 2022
-;;                  | Aug : Sep  : Oct : Nov : Dec  | Jan :
-;; -----------------+---v-÷------÷-----÷-----÷------+------
-;; Barney Rubble    |xxxxx:xxxxxx:.....:~~ooX:X***##|
-;; Wilma Flintstone |     :      :     :     :      |
+;; people-table : schedule? date? date? -> Table?
 
 ;; Number of seconds in five working days
 ;; (Note that, however, Placeholders assume 7 day weeks)
@@ -83,17 +77,22 @@ Produces a week-by-week summary of the staffing level of each person
 ;; `person:foo` is a dictionary with person-id as the key and foo as the data
 
 (define (people-table sched date-from date-to)
-  ;; weekv : vector of weeks (represented as Mondays)
+  (define (person-full-name p)
+    (string-append (person-first-name p) " " (person-last-name p)))
+  
+  ;; weekv : [vector-of date?] (representing weeks by the corresponding Mondays)
   (define weekv         
     (period->weeks date-from date-to)) 
 
+  ;; [hash-of person-id? [vector-of char?]]
   (define person:weekly-effort                  
     (for/hash ([(id efforts) (in-hash (tabulate-people-by-week sched weekv))])
       (values id (vector-map weekly-effort->char efforts))))
 
-  (define person:full-name                      
+  ;; [assoc? person-id? string?]
+  (define person:full-name
     (map
-     (λ (p) (cons (person-id p) (string-append (person-first-name p) " " (person-last-name p))))
+     (λ (p) (cons (person-id p) (person-full-name p)))
      (schedule-people sched)))
 
   (define max-row-header-length

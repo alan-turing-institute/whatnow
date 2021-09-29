@@ -1,4 +1,4 @@
-# Tables
+# Textable
 
 ## Overview
 
@@ -105,12 +105,14 @@ For an element of a tree, $t\in T$, a child of $t$ is an element $c$ such that
 $c < t$ and there is no other $c'$ where $c < c' < t$.
 
 An ordered tree is a tree such that there is a (separate) total order on the
-children of each element.
+children of each element. Two ordered trees are isomorphic if there is an
+isomorphism of their sets that preserves both the partial order and the ordering
+of children.
+
 
 ## Definitions
 
-Let $X$ be a partial order. A _slice_ of $X$ is a subset $S\subset X$
-such that:
+Let $X$ be a partial order. A _slice_ of $X$ is a subset $S\subset X$ such that:
 
 a. No two $s,t\in S$ are comparable (_i.e._, $S$ is an antichain); and 
 
@@ -136,11 +138,21 @@ can end up "belonging to" multiple groups in an inconsistent way.
 A _mondrian_ is an ordered tree $R$ (the "row structure") and an ordered tree
 $C$ (the "column structure") together with a tiling of $R\times_< C$.
 
+
 ## Constructing mondrians
 
-Two ordered trees are isomorphic if there is an isomorphism of their sets that
-preserves both the partial order and the ordering of children.
-
+A table is a mondrian that has a value associated with each element of the slice. 
 
 - Row-wise bind
 - Column-wise bind
+- Splicing bind
+
+
+
+
+## Formatting tables
+
+The main challenge in formatting a table is working out the widths of the
+columns and the heights of the rows.
+
+    
