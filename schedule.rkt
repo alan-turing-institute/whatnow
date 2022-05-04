@@ -32,16 +32,7 @@ Warnings about inconsistencies are emitted using the whatnow logger
 
 (provide
  (contract-out 
-  (struct schedule
-    ([people      (listof person?)]
-     [projects    (listof project?)]
-     [programmes  (listof client?)]
-     [assignments (listof assignment?)]))
   (get-the-schedule (-> schedule?))))
-
-(struct schedule
-  (people projects programmes assignments)
-  #:transparent)
 
 ;; get-the-schedule : date? date? -> schedule?
 ;; - Connect to all servers and download all available data. Currently gets assigments which overlap
@@ -55,24 +46,13 @@ Warnings about inconsistencies are emitted using the whatnow logger
 
   ;; --- Forecast ---
 
-  (define FORECAST-ACCOUNT (cdr (assoc 'forecast the-accounts)))
-
-  (define <forecast>
-    (fc:connect
-     (server-account-host  FORECAST-ACCOUNT)
-     (server-account-id    FORECAST-ACCOUNT)
-     (server-account-token FORECAST-ACCOUNT)))
-
   (define the-forecast-schedule
-    (schedule
-     (fc:get-team <forecast>)
-     (fc:get-projects <forecast>)
-     (fc:get-clients <forecast>)
-     (fc:get-assignments <forecast> (today) (+days (today) 180))))
+    (fc:get-the-forecast-schedule (today) (+days (today) 180)))
 
   (verify-forecast-data the-forecast-schedule)
 
   the-forecast-schedule)
+
 
 (define (verify-forecast-data sched)
   (for ([p (in-list (schedule-projects sched))])

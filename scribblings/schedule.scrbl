@@ -8,7 +8,7 @@
 @title{The current schedule}
 
 @defmodule[whatnow/schedule]{The @racketmodname[whatnow/schedule] library
-provides for accessing data from all sources in a consistent way.}
+provides procedures for accessing data from all sources in a consistent way.}
 
 This module defines structures for people, projects, programmes, and
 assignments. Not all fields in those structures are provided by all data
@@ -24,15 +24,6 @@ are optional.
 @defproc[(get-the-schedule) schedule?]{Download project-related data from
 all servers and emit consistency warnings.}
 
-@defstruct*[schedule ([people (listof person?)]
-                      [projects (listof project?)]
-                      [programmes (listof programme?)]
-                      [assignments (listof assignment?)])
-                      #:transparent]{
-
-        A structure to hold all details of all assignments. FIXME: At the
-        moment, the structure definitions from @racketmodname[whatnow/forecast]
-        are simply re-exported.}
         
 @section[#:tag "assignables"]{Persons and placeholders}
 

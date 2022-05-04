@@ -9,8 +9,8 @@
 
 @section{Forecast}
 
-@defmodule[whatnow/forecast]{The @racketmodname[whatnow/server/orecast] library
-provides a wrapper around @racketmodname[whatnow/server/forecast-json] that
+@defmodule[whatnow/forecast]{The @racketmodname[whatnow/server/forecast] library
+provides a wrapper around @racketmodname[whatnow/server/forecast-json] which
 re-exports the downloads as structured data.}
 
 These functions check that all fields are present in the JSON returned from
@@ -23,6 +23,11 @@ nor are archived entities.
 @defproc[(connect [account-id string?] [access-token string?])
                   connection?]{Rexported from @secref["Connecting_to_Forecast"
          #:doc '(lib "whatnow/scribblings/apis.scrbl")]}
+
+@defproc[(get-the-forecast-schedule [start-date date?] [end-date date?])
+                                    schedule?]{
+
+  Returns a full schedule, making the necessary connection to the server.}
 
 @defproc[(get-team [conn connection?])
                    (listof person?)]{

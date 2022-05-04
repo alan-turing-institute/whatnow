@@ -11,6 +11,14 @@
 people, projects, assignments, and so forth, together with utilities for these
 types.}
 
+@defstruct*[schedule ([people (listof person?)]
+                      [projects (listof project?)]
+                      [programmes (listof programme?)]
+                      [assignments (listof assignment?)])
+                      #:transparent]{
+
+        A structure to hold all details of all assignments.}
+
 @defstruct*[person
     ([id         exact-nonnegative-integer?]
      [harvest-id (or/c #f exact-nonnegative-integer?)]

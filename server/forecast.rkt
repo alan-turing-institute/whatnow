@@ -21,9 +21,11 @@ There are two checks on records in the JSON data from Forecast:
          gregor)
 
 (require "../db/types.rkt"
+         "../config.rkt"
          "forecast-json.rkt")
 
-(provide connect
+(provide connect ; Re-exported from forecast-json.rkt
+         get-the-forecast-schedule
          get-team
          get-projects
          get-clients
@@ -36,9 +38,38 @@ There are two checks on records in the JSON data from Forecast:
 
 ;; ---------------------------------------------------------------------------------------------------
 
+;; get-the-forecast-schedule : date? date? -> schedule?
+;; Return a full schedule
+;; Makes a call to config-get-accounts
+(define (get-the-forecast-schedule start-date end-date)
+
+  ;; There is currently a restriction in Forecast that you can't get more than 180 days'
+  ;; worth of allocations
+  (when (date>? end-date (+days start-date 180))
+    (raise-arguments-error 'get-the-forecast-schedule
+                           "Forecast only allows requests for periods no greater than 180 days"
+                           "start-date" start-date
+                           "end-date" end-date))
+
+  
+  (define FORECAST-ACCOUNT
+    (cdr (assoc 'forecast (config-get-accounts))))
+
+  (define <forecast>
+    (connect
+     (server-account-host  FORECAST-ACCOUNT)
+     (server-account-id    FORECAST-ACCOUNT)
+     (server-account-token FORECAST-ACCOUNT)))
+
+  (schedule
+   (get-team <forecast>)
+   (get-projects <forecast>)
+   (get-clients <forecast>)
+   (get-assignments <forecast> (today) (+days (today) 180))))
+
+
 ;; Each `get-` function obtains the corresponding entities from Forecast and checks that certain
 ;; fields are not null. Archived entities are excluded. 
-
 
 ;; people : connection? -> (listof person?)  
 (define (get-team conn)

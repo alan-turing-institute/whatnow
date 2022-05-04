@@ -4,6 +4,7 @@
 
 Declarations for record types representing "real-world" data:
 
+- schedule
  - person
  - project
  - client
@@ -14,6 +15,14 @@ Declarations for record types representing "real-world" data:
 
 (require racket/contract
          gregor)
+
+(provide
+ (contract-out
+  (struct schedule
+    ([people      (listof person?)]
+     [projects    (listof project?)]
+     [programmes  (listof client?)]
+     [assignments (listof assignment?)]))))
 
 (provide
  (contract-out
@@ -82,5 +91,7 @@ Declarations for record types representing "real-world" data:
   (person-id project-id)
   #:transparent)
 
-
+(struct schedule
+  (people projects programmes assignments)
+  #:transparent)
 
