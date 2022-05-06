@@ -22,7 +22,7 @@ error is raised if these conditions are not satisfied.
 Note that placeholders are not exported, nor is any assignment to a placeholder,
 nor are archived entities.
 
-@defproc[(connect [account-id string?] [access-token string?])
+@defproc[(connect [host string?] [account-id string?] [access-token string?])
                   connection?]{Rexported from @secref["Connecting_to_Forecast"]}
 
 @defproc[(get-the-forecast-schedule [start-date date?] [end-date date?])

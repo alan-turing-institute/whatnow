@@ -69,7 +69,7 @@ note tries to document the undocumented API.
 
 @subsection{Connecting to Forecast}
 
-@defproc[(connect [account-id string?] [access-token string?])
+@defproc[(connect [host string?] [account-id string?] [access-token string?])
          connection?]{
          Returns a structure representing a connnection
          to the Forecast server, given the appropriate authentication details.}
