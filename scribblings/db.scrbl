@@ -3,11 +3,11 @@
 @require[
   @for-label[(except-in racket/base date date?)]
   @for-label[gregor]
-  @for-label["../db/db.rkt"]]
+  @for-label[whatnow/db/db]]
 
 @title{Data types and utilities}
 
-@defmodule[whatnow/db]{@racketmodname[whatnow/db] defines the representation of
+@defmodule[whatnow/db/db]{@racketmodname[whatnow/db/db] defines the representation of
 people, projects, assignments, and so forth, together with utilities for these
 types.}
 

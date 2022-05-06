@@ -3,15 +3,17 @@
 @require[
   @for-label[(except-in racket/base date date?)]
   @for-label[gregor]
-  @for-label["../server/forecast.rkt" "../db/types.rkt"]]
+  @for-label[whatnow/server/forecast
+             whatnow/db/db]]
 
 @title{Backends}
 
 @section{Forecast}
 
-@defmodule[whatnow/forecast]{The @racketmodname[whatnow/server/forecast] library
-provides a wrapper around @racketmodname[whatnow/server/forecast-json] which
+@defmodule[whatnow/server/forecast]{The @racketmodname[whatnow/server/forecast] library
+provides a wrapper around @racket[whatnow/server/forecast-json] which
 re-exports the downloads as structured data.}
+
 
 These functions check that all fields are present in the JSON returned from
 Forecast; and for some fields a check is made that the field is not-null. An
@@ -21,8 +23,7 @@ Note that placeholders are not exported, nor is any assignment to a placeholder,
 nor are archived entities.
 
 @defproc[(connect [account-id string?] [access-token string?])
-                  connection?]{Rexported from @secref["Connecting_to_Forecast"
-         #:doc '(lib "whatnow/scribblings/apis.scrbl")]}
+                  connection?]{Rexported from @secref["Connecting_to_Forecast"]}
 
 @defproc[(get-the-forecast-schedule [start-date date?] [end-date date?])
                                     schedule?]{

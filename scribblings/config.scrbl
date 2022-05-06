@@ -3,7 +3,7 @@
 @require[
   @for-label[racket/base]
   @for-label[basedir]
-  @for-label["../config.rkt"]]
+  @for-label[whatnow/config]]
              
 @title{Configuration}
 
