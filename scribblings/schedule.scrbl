@@ -2,8 +2,8 @@
 
 @require[
   @for-label[racket/base]
-  @for-label["../config.rkt"]
-  @for-label["../schedule.rkt"]]
+  @for-label[whatnow/config]
+  @for-label[whatnow/schedule]]
 
 @title{The current schedule}
 
