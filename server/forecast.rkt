@@ -65,7 +65,7 @@ There are two checks on records in the JSON data from Forecast:
    (get-team <forecast>)
    (get-projects <forecast>)
    (get-clients <forecast>)
-   (get-assignments <forecast> (today) (+days (today) 180))))
+   (get-assignments <forecast> start-date end-date)))
 
 
 ;; Each `get-` function obtains the corresponding entities from Forecast and checks that certain
