@@ -7,8 +7,8 @@
 
 @title{API documentation}
 
-@section{Forecast} @defmodule[whatnow/api/forecast-json]{The
-@racketmodname[whatnow/api/forecast-json] library provides procedures for
+@section{Forecast} @defmodule[whatnow/server/forecast-json]{The
+@racketmodname[whatnow/server/forecast-json] library provides procedures for
 accessing the data stored on Forecast.}
 
 @hyperlink["https://forecastapp.com"]{Forecast} is our SaaS system for recording
