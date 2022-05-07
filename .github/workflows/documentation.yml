@@ -26,7 +26,7 @@ jobs:
         run: raco pkg install --auto --batch
 
       - name: Scribble documentation              
-        run: raco scribble --html --dest doc --redirect-main https://docs.racket-lang.org +m scribblings/whatnow.scrbl
+        run: raco scribble --htmls --dest doc --redirect-main https://docs.racket-lang.org +m scribblings/whatnow.scrbl
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4.2.5
