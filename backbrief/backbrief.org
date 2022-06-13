@@ -56,9 +56,9 @@ The present system has three parts:
    with an auto-generated issue number. The issue number is the primary means of
    individuating projects within REG.
 
-   Each of the issues lives in a particular column of the kanban board
-   representing the present stage of the project. We currently have ten stages
-   (see table below).
+   Each issue lives in a particular column of the kanban board, representing the
+   present stage of the project. At the time of writing, we have ten stages (see
+   table below).
 
    Within the issue itself we maintain metadata about the projects---the people
    involved, the total budget and timing constraints---as well as a
@@ -68,31 +68,37 @@ The present system has three parts:
    at the top of the issue, [[https://github.com/alan-turing-institute/Hut23/blob/master/.github/ISSUE_TEMPLATE/project.md][a metadata block]] containing the critical information
    for each project.
 
+   Update (2022): We've made some explorations with GitHub's ``new-style''
+   project boards. These allow you to add your own fields (from a restricted set
+   of types) to the issues on the board and are perhaps a good place to store
+   project metadata. (Assuming we can figure out the SparQL interface.)
+
 2. For /scheduling/ and /billing/ we use [[https://forecastapp.com/974183/schedule/projects][Forecast]]. Roughly speaking, this
-   web-based service maintains a list of /assigments/: that is, allocations of
+   web-based service maintains a list of /assignments/: that is, allocations of
    an individual's time to a project over a given period. Since Forecast records
    what we ought to be spending our time on, we also use it for billing. When we
    come to to decide how much to charge projects we look at the past
    allocations in Forecast. 
 
-   We have also used Forecast to try to schedule projects as well as individual
-   assignments. However, this is complicated by the fact that there is no
-   "project budget" facility in Forecast. There is no place to record start and
-   end dates or resourcing needs for projects that are not yet staffed. (This is
-   why this information is in the Project Tracker.) We have found a work-around
-   by assigning a nominal staff member (known as a “Placeholder”) called
-   “Resource required”. When a real team-member is assigned to the project, the
-   “resource required” person is removed. However, this approach has been made
-   more difficult by the decision to move to staffing levels that are not
-   necessarily multiples of 50% of an FTE.
+   We have also used Forecast to try to schedule projects. However, this is
+   complicated by the fact that there is no ``project budget'' facility in
+   Forecast: There is no place to record start and end dates or resourcing needs
+   for projects that are not yet staffed. (This is why this information is in
+   the Project Tracker.) We have found a work-around by assigning a nominal
+   staff member (known in Forecast as a ``Placeholder'') called ``People
+   required.'' When a real team-member is assigned to the project, the ``People
+   required'' placeholder is removed. However, this approach has lately been
+   made more difficult by the decision to move to staffing levels that are not
+   necessarily multiples of 50% of an FTE as this implies that a person will not
+   necessarily be a one-to-one replacement for the placeholder.
 
 3. For historic /time tracking/ we use [[https://thealanturinginstitute.harvestapp.com/time/week][Harvest]], a system linked to Forecast. We
-   have tried to use Harvest to track our /actual/ time, including various
-   duties that are not billed to projects because they are part of "business as
-   usual."  Every once in a while we review Harvest to ensure that what we said
-   we were going to do (in Forecast) is roughly what we actually did. If there
-   are large discrepancies, we discuss these and if necessary change Forecast
-   retroactively to match reality.
+   make some efforts to use Harvest to track our /actual/ time, including
+   various duties that are not billed to projects because they are part of
+   "business as usual."  Every once in a while we review Harvest to ensure that
+   what we said we were going to do (in Forecast) is roughly what we actually
+   did. If there are large discrepancies, we discuss these and if necessary
+   change Forecast retroactively to match reality.
 
 #+caption: The ten stages of a project (as at present).
 #+begin_table
@@ -116,26 +122,26 @@ person, to some extent reproducing the board in a way that allows us to print it
 out on a very large sheet of paper; (b) collect in one place the individual
 preferences; (c) produce a forward look of supply against demand.
 
-We have, perhaps, now reached the limits of the present system. There are three
-main problems with the current approach:
+We have now reached the limits of the present system. There are three main
+problems with the current approach:
 
 1. The projects in GitHub, Forecast, and Harvest are connected only though the
    issue number and all the connections are manual. In particular, Forecast has
    no access to the project metadata from the GitHub issue and (perhaps more
    surprisingly) it does not make use of the budgeting data from Harvest
    either. For example, in order to indicate, on Forecast, that a project exists
-   before someone is assigned to it, it is necessary to add a “placeholder”
+   before someone is assigned to it, it is necessary to add a placeholder
    allocation (linked to a fictitious individual).
 
 2. There's no automated way to summarise project status beyond
    Wimbledon. Project leads must manually check to see that their projects are
-   on budget, for example. We provide a regular summary to Finance but this is a
-   manual process. We don't have confidence that everything is on track.
+   on budget, for example (and typically this does not happen). We don't have
+   confidence that everything is on track.
 
 3. The process of actually scheduling individuals onto projects is /extremely/
-   time-consuming. Furthermore, there is no history of changes: when an
-   assignment is changed in Forecast, there is no record of what was there
-   before or why the change was made.
+   time-consuming and borderline unworkable at our present scale. Furthermore,
+   there is no history of changes: when an assignment is changed in Forecast,
+   there is no record of what was there before or why the change was made.
 
 
 ** Desiderata for a future system
@@ -166,84 +172,160 @@ three-phase plan.
 
 - Phase 3 :: Automate scheduling of projects.
 
-** Further details
+** Data model
 
-*** Phase I
+The following are entities in the model: /programme/, /person/, /project/, and
+/assignment/. Persons represent members of staff; projects are the things to
+which they might be assigned; and assignments connect projects and persons over
+some period. Programmes are categories of projects; but the meaning is somewhat
+fluid.
 
-**** Changes to GitHub
-
- 1. Change the format of the first tag of the issue to include a YAML data block
-    so that the important project data become machine-readable.
-
-**** Modules
-
- 1. Interface to the GitHub issue API
- 2. Interface to the Forecast API
- 3. Interface to the Harvest API
-
-*** Data model
-
-The following are entities in the model: /person/, /project/, and
-/assignment/. Persons represent members of staff; and projects are the things to
-which they might be assigned.
-
-Forecast is authoritative for persons (the "Team," in Forecast's
-language). GitHub is authoritative for projects: A project is any issue on the
-[[https://github.com/alan-turing-institute/Hut23/projects/2][Project Tracker]] or [[https://github.com/alan-turing-institute/Hut23/projects/8][Standing Roles]] tracker. However, some data about persons may
-exist on GitHub (for example, the identity of the project lead); and projects
-are of course used on Forecast to manage individual assignments.
+Forecast is authoritative for persons (the "Team," in Forecast's language),
+which are individuated by Forecast identifers, and for assignments. GitHub is
+authoritative for projects, which are individiated by issue numbers: A project
+is any issue on the [[https://github.com/alan-turing-institute/Hut23/projects/2][Project Tracker]] or [[https://github.com/alan-turing-institute/Hut23/projects/8][Standing Roles]] tracker. However, some
+data about persons may exist on GitHub (for example, the identity of the project
+lead or the Programme lead); and projects are of course used on Forecast to
+manage individual assignments.
 
 All projects on Forecast have their GitHub issue number recorded as the Forecast
 "Project Code" and this is how we identify projects across those two
 systems. Conversely, all persons on Forecast have an email address which we use
 to identify them (as people!); however, since people don't have to use the same
 email on GitHub as they do on Forecast, we will need a separate lookup table of
-GitHub usernames as part of any new system.
+GitHub usernames, at least for Programme leads.
 
-We now wish to define “assignments” of persons to projects. (In some sense, the
-entire point of Forecast is to manage these assignments.) What does this mean?
-In Forecast, a person can only be assigned once to the same project on the same
-day. We might therefore model this as follows. By an /allocation/ we mean a
-triple of a project, a person, and a date. Then, the /schedule/ is (1) a set of
-allocations; and (2) a map from this set to the non-negative numbers. (The
-non-negative number is the amout of time allocated to the project by the person
-on the given date). Note that under this definition there is only one schedule
-(though one could of course consider the restriction of the map to the subset of
-allocation specific to a particular project). We consider a /set/ of allocations
-in the first part of the definition of a schedule to ensure that no person has
-two allocations to the same project on the same day.
+A **Client** on Forecast is:
+1. A Forecast identifier.
+2. A name
 
-In fact, this is not how Forecast represents things. In practice, people tend to
-remain with a project for an extended duration rather than switch every day. So
-for space reasons Forecast stores blocks of allocations. 
+We have mostly used Clients as a synonym for Turing Programmes. On Forecast,
+each project belongs to one and only one Client. However, some projects in the
+Turing span Programmes. Typically this is because these projects were funded by
+the ASG arrangement; however, although we do have a Client "ASG", the actual ASG
+is /not/ a Programme, it is a funding source.
 
-A /period/ is a contiguous range of dates.[fn:2] (We deal in no unit of time
-smaller than a day. Ideally, we would not use any unit of time more granular
-than an ISO 8601 week, but Forecast does not enforce this.)
+Clients are currently reported on the ``recharge pro forma,'' the register of
+allocations which we give to PMU and Finance monthly for the purpose of cost
+recovery. On the pro forma we label Clients as ``Programmes''. PMU look for
+``their'' projects by reference to the Client (which they interpret as being a
+Programme) so ideally Client should refer to whatever PMU recognises. However,
+this is not always possible for the reason above and, in those cases, Client can
+mean "Funder".
 
-An /assignment/ is a tuple consisting of a person, a project, a rate (see
-below), and a period. The interpretation is, “this person is allocated to this
-project for a certain fraction of their available time over this period.” A
-/schedule/ is then a set of assignments /subject to the constraint that/ no two
-assignments, having the same person and project, may overlap on any date.[fn:3] 
+However, for the recharge pro forma, it's not actually /critical/ that Client
+matches some real-world thing: the Finance code does all the heavy lifting in
+identifying where the funding is coming from.
 
-Forecast is authoritative for assignments. 
+It would be nice if a **Programme** (in whatnow) was:
 
-The assignment rate is specified in hours per day (although actually I think it
-might be stored in seconds) and must be positive and non-zero. For assingment
-purposes, we use a nominal 8-hour day (or 40-hour week) so we sometimes
-equivalently quote the rate as a percentage (of the nominal day); and
-occasionally as a time in hours per week.
+- A Client on Forecast;
+- A tag representing a Programme on GitHub;
+- The GitHub issue representing a Programme Lead service area.
+1. Optionally, a GitHub issue number for the appropriate "Programme Lead Service
+   Area"
+2. A set, possibly empty, of tags that are used on GitHub to identify the
+   Programme(s) of a project.
 
-Some Forecast Team-members are not actually “available” (for example, because
+
+A **Project** is:
+1. A GitHub issue number. (On Forecast, these are coded as ~hut23-NNN~ where
+   ~NNN~ is the issue number.)
+2. A Forecast identifier.
+3. Optionally, the Harvest identifier of this project in Harvest.
+4. Optionally, the Forecast identifier of the corresponding Client in Forecast.
+5. A name, which may be empty.
+6. A list, which may be empty, of "Tags", which we have used to list the Finance
+   Codes that are allowed for this project.
+7. A note, which may be empty, which we use to store the URL of the
+   corresponding GitHub issue.
+
+Note that there are two projects of the form ~hut23-NNN/V~ where ~V~ is 1
+or 2. These are each the component parts of a single project, which we have
+split for some reason.
+
+There is a single, special, built-in project on Forecast, called **Time Off**,
+which is non-editable and obviously has no GitHub issue number. There should be
+no allocations to this project and it should be the sole project without an
+issue number.
+
+A **Person** is:
+1. A Forecast identifier.
+2. Optionally, a Harvest identifier.
+3. Optionally, an email address.
+4. A first name and a last name, both optional.
+5. A list, possibly empty, of roles. A role is one a finite set of strings that
+   we use internally to denote: whether the person is REG or a Partner; if REG,
+   their title and level; and if a Partner, the partner institution.
+
+Also available from Forecast but possibly not useful is:
+- A boolean, indicating whether this person can log in to Forecast.
+
+People are assigned to projects at a certain rate on certain days. (We deal in
+no unit of time smaller than a day. Ideally, we would not use any unit of time
+more granular than an ISO 8601 week, but Forecast does not enforce this. We do
+try to make projects start on Monday and end on Sunday, the first and last days
+of an ISO week.)
+
+A **rate** is a rational fraction of a nominal 8h working day. An **allocation**
+is a map from days to rates. An **assignment** is:
+1. a project;
+2. a person;
+3. a Finance code (which may be the special value ~None~); and
+4. an allocation.
+
+A **schedule** is a set of assignments such that the total rate for each person
+on a given day does not exceed 1.
+
+In fact, Forecast does not represent allocations as maps. People tend to remain
+with a project for an extended duration rather than switch every day and their
+rate of allocation tends to be constant. So for space reasons Forecast stores
+blocks of allocations.
+
+A **period** is a contiguous range of dates (probably best to store as start
+date plus number of days).[fn:2] An **simple allocation** is an allocation that
+is zero except in a given period, where it is constant. A simple allocation can
+be represented as a period, together with a rate. What one obtains from Forecast
+are simple allocations.
+
+Note that any allocation can be represented as the ``sum'' of a set of simple
+allocations.
+
+Forecast is authoritative for assignments; however there are some implementation
+details. In Forecast, there isn't a special field for the Finance code. What we
+do is use the ``project level'' code, if there is one; otherwise we put the code
+in notes field of the allocation. The assignment rate on Forecast is specified
+in hours per day (although actually I think it might be stored in seconds) and
+/must/ be strictly greater than zero. For assignment purposes, we use a nominal
+8-hour day (or 40-hour week).
+
+Some Forecast Team-members are not actually ``available'' (for example, because
 they have left the team) and some people are on reduced-hours contracts
 (typically 80%). We do not store a person’s total “availability” anywhere: it is
 always assumed to be 40 hours per week. Instead, we assign such a person wholly
 or partially to the nominal project “UNAVAILABLE” and this time contributes to
 their total assigned time.
 
+** A possible module structure
 
+- Command-line interface
+  - Tabular formatting
+  - Other output formats formatting
+  - Logging?
+  - Schedules
+    - Functional interface to Forecast
+      - Raw interface to Forecast
+    - Functional interface to GitHub
+      - Raw interface to GitHub
+    - Check consistency of external systems
+    - Check internal consistency of schedule
+    - Utilities for periods (splitByWeek, monthOfWeek, aggregate, split,
+      before?, after?, duration, addToDate)
+    - Utilities for allocations (sum)
 
+For future
+- Persisting data locally
+- Diffs
 
 
 ** Some ideas for reporting 
@@ -257,6 +339,25 @@ their total assigned time.
  - the same, for projects in your Programme;
  - it is now six months before the start of the project and we do not have
    confirmation of funding.
+
+
+** Notes for Hack Week
+
+*** Day 1 planning
+
+- Get dotnet, clone repo
+- Intro to module structure in F#
+- Intro to project organisation in F#
+- Intro to fsi repl (& how to run modules from repl?)
+- Outline module structure
+- 
+
+*** Day 2 planning
+
+- Q&A with our expert
+- What we're stuck on
+- Docs
+  
 
 
 * Other systems
