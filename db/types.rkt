@@ -19,10 +19,11 @@ Declarations for record types representing "real-world" data:
 (provide
  (contract-out
   (struct schedule
-    ([people      (listof person?)]
-     [projects    (listof project?)]
-     [programmes  (listof client?)]
-     [assignments (listof assignment?)]))))
+    ([people       (listof person?)]
+     [placeholders (listof placeholder?)]
+     [projects     (listof project?)]
+     [programmes   (listof client?)]
+     [assignments  (listof assignment?)]))))
 
 (provide
  (contract-out
@@ -35,6 +36,10 @@ Declarations for record types representing "real-world" data:
      [login?     boolean?]
      [roles      (listof string?)]
      ))
+
+  (struct placeholder
+    ([id         exact-nonnegative-integer?]
+     [name       (or/c #f string?)]))
 
   (struct project
     ([id           exact-nonnegative-integer?]
@@ -55,7 +60,8 @@ Declarations for record types representing "real-world" data:
      [end-date   date?] ; ie, start and end dates are inclusive
      [rate       exact-nonnegative-integer?] ; Seconds per day
      [person-id  exact-nonnegative-integer?]
-     [project-id exact-nonnegative-integer?]))
+     [project-id exact-nonnegative-integer?]
+     [person-placeholder? boolean?]))
 
   (struct allocation
     ([start-date date?]
@@ -68,6 +74,10 @@ Declarations for record types representing "real-world" data:
 
 (struct person
   (id harvest-id first-name last-name email login? roles)
+  #:transparent)
+
+(struct placeholder
+  (id name)
   #:transparent)
 
 (struct project
@@ -88,10 +98,10 @@ Declarations for record types representing "real-world" data:
   #:transparent)
 
 (struct assignment allocation
-  (person-id project-id)
+  (person-id project-id person-placeholder?)
   #:transparent)
 
 (struct schedule
-  (people projects programmes assignments)
+  (people placeholders projects programmes assignments)
   #:transparent)
 

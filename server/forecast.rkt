@@ -63,6 +63,7 @@ There are two checks on records in the JSON data from Forecast:
 
   (schedule
    (get-team <forecast>)
+   (get-placeholders <forecast>)
    (get-projects <forecast>)
    (get-clients <forecast>)
    (get-assignments <forecast> start-date end-date)))
@@ -74,6 +75,10 @@ There are two checks on records in the JSON data from Forecast:
 ;; get-team : connection? -> (listof person?)
 (define (get-team conn)
   (filter-map json->person (get-team/json conn)))
+
+;; get-placeholders : connection? -> (listof placeholder?)
+(define (get-placeholders conn)
+  (filter-map json->placeholder (get-placeholders/json conn)))
 
 ;; get-projects : connection? -> (listof project?)
 (define (get-projects conn)
@@ -104,6 +109,12 @@ There are two checks on records in the JSON data from Forecast:
         [equal? (extract  'login js) "enabled"]
         [extract/not-null 'roles js])))
 
+(define (json->placeholder js)
+  (and (not (archived? js))
+       (placeholder
+        [extract/not-null 'id js]
+        [extract          'name js])))
+
 (define (json->project js)
   (and (not (archived? js))
        (project
@@ -121,15 +132,19 @@ There are two checks on records in the JSON data from Forecast:
         [extract/not-null 'name js])))
 
 (define (json->assignment js)
-  ;; If person_id is #f, this assignment is to a placeholder
-  (and (extract 'person_id js)
-       (assignment
-        [iso8601->date (extract/not-null 'start_date js)]
-        [iso8601->date (extract/not-null 'end_date   js)]
-        [extract/not-null 'allocation js]
-        [extract          'person_id  js] 
-        [extract/not-null 'project_id js]
-)))
+  (define person? (extract 'person_id js))
+  (define person-or-placeholder-id
+    (if person?
+        (extract 'person_id js)
+        (extract 'placeholder_id js)))
+
+  (assignment
+   [iso8601->date (extract/not-null 'start_date js)]
+   [iso8601->date (extract/not-null 'end_date   js)]
+   [extract/not-null 'allocation js]
+   person-or-placeholder-id
+   [extract/not-null 'project_id js]
+   (not person?)))
 
 (define (archived? js)
   (extract 'archived js))
