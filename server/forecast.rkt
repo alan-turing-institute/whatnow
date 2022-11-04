@@ -71,19 +71,19 @@ There are two checks on records in the JSON data from Forecast:
 ;; Each `get-` function obtains the corresponding entities from Forecast and checks that certain
 ;; fields are not null. Archived entities are excluded. 
 
-;; people : connection? -> (listof person?)  
+;; get-team : connection? -> (listof person?)
 (define (get-team conn)
   (filter-map json->person (get-team/json conn)))
 
-;; projects : connection? -> (listof project?)
+;; get-projects : connection? -> (listof project?)
 (define (get-projects conn)
   (filter-map json->project (get-projects/json conn)))
 
-;; programmes : connection? -> (listof programme?)
+;; get-clients : connection? -> (listof programme?)
 (define (get-clients conn)
   (filter-map json->client (get-clients/json conn)))
 
-;; assignments : connection? date? date? -> (listof assignment?)
+;; get-assignments : connection? date? date? -> (listof assignment?)
 ;; 
 ;; Returns only assignments to people (ie, excludes assignments to placeholders)
 ;; Forecast requires end-date - start-date <= 180 days
